@@ -1,0 +1,6 @@
+/.ipynb_checkpoints
+/.vscode
+/.idea
+/results
+/smalldataset
+.DS_Store
