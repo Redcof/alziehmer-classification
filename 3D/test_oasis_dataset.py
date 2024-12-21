@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import torchvision.transforms
 
-from oasis_torch_dataset import OASIS_TF
+from oasis_torch_dataset import OASISTFDataset, OASISTorchDataset
 
 # from rich import print
 
@@ -39,9 +39,9 @@ assert os.path.exists(datasetdir), f"Dataset path is incorrect {datasetdir}"
 random_seed = 37
 resume_training_timestamp = None  # CHANGE HERE
 max_epoch = 50  # CHANGE HERE
-batch_size = 64  # CHANGE HERE
+batch_size = 13  # CHANGE HERE
 image_size = 128
-color_mode = 'rgb'
+color_mode = 'rgb'  # grayscale
 n_ch = dict(rgb=3, grayscale=1)[color_mode]
 monitor = "f1_score"
 initial_threshold = 0.5
@@ -50,8 +50,7 @@ freq = "epoch"
 initial_epoch = 0
 learning_rate = 0.001
 enable_class_weight = False
-ablation_study_size = batch_size * 30  # CHANGE HERE
-
+ablation_study_size = 0  # CHANGE HERE
 task_type = "categorical"  # "categorical"
 # Link: https://www.tensorflow.org/api_docs/python/tf/keras/losses#functions
 if task_type == "binary":
@@ -73,26 +72,36 @@ if __name__ == '__main__':
         return cv2.bilateralFilter(np.array(pil_image), 15, 75, 75)
 
 
+    def img_reshape(tensor):
+        return tensor.view(image_size, image_size, n_ch)
+
+
     transforms = torchvision.transforms.Compose([
         torchvision.transforms.ToTensor(),
         torchvision.transforms.RandomVerticalFlip(),
         torchvision.transforms.RandomHorizontalFlip(),
         torchvision.transforms.ToPILImage(),
         torchvision.transforms.Lambda(bilateral_filter),
-        # torchvision.transforms.Normalize(mean=0., std=1.),
+        torchvision.transforms.ToPILImage(),
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Lambda(img_reshape),
+        torchvision.transforms.Normalize(mean=0., std=1.),
     ])
-    odd = OASIS_TF()
-    train, test = odd.tf_oasis_load_dataset(
+    OASISTorchDataset.VOLUME_DEPTH = 16
+    odd = OASISTFDataset()
+    train_ds, val_ds, test_ds = odd.tf_oasis_load_dataset(
         datasetdir,
         transforms=transforms,
         label_mode=task_type,
         class_names=None,
         color_mode=color_mode,
         batch_size=batch_size,
+        ablation=ablation_study_size,
         image_size=(image_size, image_size),
         seed=random_seed,
-        validation_split=0.2,
+        split_ratio_100=(70, 20, 10),
     )
-
-    for im, lb in train:
-        print(im.shape)
+    odd.sample_dataset.get_volume_for_image(
+        r'/Users/soumensardar/Downloads/OASIS/Mild Dementia/OAS1_0028_MR1_mpr-1_127.jpg')
+    for im, lb in train_ds:
+        print(im.shape, odd.decode_labels(lb))
