@@ -295,15 +295,14 @@ class OASISTFDataset:
             image_size=(256, 256),
             seed=None,
             split_ratio_100=(70, 20, 10),
+            dtype="float32",
     ):
-        assert color_mode in ("greyscale", "rgb"), color_mode
+        assert color_mode in ("grayscale", "rgb"), color_mode
         assert label_mode in (OASISTorchDataset.BINARY_TASK, OASISTorchDataset.CATEGORY_TASK), label_mode
         assert len(split_ratio_100) == 3 and sum(
             split_ratio_100) == 100, f"train-validation-test splits must accumulate to 100, but {split_ratio_100} given"
         # determine number of channels
         nch = 3 if color_mode == "rgb" else 1
-        # set precision
-        dtype = "float32"  # 8-Byte
         # load torch dataset
         torch_data_train = OASISTorchDataset(directory,
                                              task_type=label_mode,
