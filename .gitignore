@@ -5,3 +5,5 @@
 /smalldataset
 .DS_Store
 /backup
+/oasis_cache*
+__pycache__
