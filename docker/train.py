@@ -17,17 +17,30 @@ assert os.path.exists(log_root), "You must mount a physical directory to '/mnt/o
 cache_root = log_root
 datasetdir = f'{log_root}/imagesoasis/Data' # You must mount # 'D:/m.../OASIS_data/Data' to '/mnt/osais/imagesoasis/Data' 
 dataset_name = 'tflogs_mvcnn'
-if not os.path.exists(datasetdir):
 
+def download_oasis():
+    global log_root
     # Download the dataset
     import opendatasets as od
+
+    # creating kaggle.json
+    import json
+    with open('./kaggle.json', 'w') as outfile:
+        print("Creating kaggle.json file")
+        data = dict(username=os.environ['KAGGLE_USERNAME'], key=os.environ['KAGGLE_KEY'])
+        json.dump(data, outfile)
 
     # Replace with the actual Kaggle dataset URL
     print("Downloading OASIS dataset...")
     dataset_url = 'https://www.kaggle.com/datasets/ninadaithal/imagesoasis' 
-    od.download(dataset_url)
-    print(f"Moving the dataset to '{log_root}'")
-    shutil.move('imagesoasis', log_root)
+    od.download(dataset_url, data_dir=f"{log_root}/imagesoasis")
+
+    with open('./kaggle.json', 'w') as outfile:
+        print("Wiping out the kaggle.json file")
+
+if not os.path.exists(datasetdir):
+    download_oasis()
+    
 
 def is_running_in_colab():
   return 'google.colab' in sys.modules
