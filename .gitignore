@@ -9,3 +9,4 @@
 __pycache__
 kaggle.json
 /docker/centos_amd64_deps
+/imagesoasis/*
