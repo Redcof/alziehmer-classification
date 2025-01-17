@@ -9,7 +9,6 @@
         "ablation_study_size": 60,
         "batch_size": 6,
         "image_size": 128,
-        "volume_depth": 61
     },
     "gradient_accum": false,
     "n_grad_accum_steps": 2,

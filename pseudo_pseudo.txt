@@ -1,0 +1,85 @@
+
+
+SET ratio TO (0.7, 0.2, 0.1)
+
+SET batch_size TO 13
+
+SET train_data, validation_data, test_data TO get_oasis_dataset(batch_size, ratio)
+
+
+
+SET train_data TO RandomVerticalFlip(train_data)
+
+SET train_data TO RandomHorizontalFlip(train_data)
+
+SET train_data TO bilateral_filter(train_data)
+
+SET train_data TO Normalize(train_data, mean=0, std=1)
+
+
+
+SET validation_data TO Normalize(validation_data, mean=0, std=1)
+
+SET test_data TO Normalize(test_data, mean=0, std=1)
+
+
+
+DEFINE FUNCTION create_multiview_model():
+
+    SET volume_depth TO 61
+
+    SET num_classes TO 4
+
+    SET multiview_output TO []
+
+    FOR i IN range(volume_depth):
+
+        SET backbone TO pretrained_mobilenet()
+
+        multiview_output.append(backbone)
+
+    SET merged_features TO Concatenate(multiview_output)
+
+    SET feature TO Conv2D(merged_features, 256, (3, 3), activation='relu')
+
+    SET feature TO MaxPooling2D(feature, pool_size=(2, 2))
+
+    SET feature TO GlobalAveragePooling2D(feature)
+
+    SET feature TO Dropout(feature, probability=0.5)
+
+    SET feature TO Dense(feature, num_classes, activation='softmax')
+
+    RETURN feature
+
+
+
+
+
+SET multiview_mobilenet TO create_multiview_model()
+
+
+
+SET learning_rate TO 0.001
+
+SET loss_function TO "categorical_cross_entropy"
+
+SET optimization_algorithm TO "adam"
+
+
+
+SET multiview_mobilenet_model TO compile(multiview_mobilenet, learning_rate, loss_function)
+
+
+
+SET train_metrics TO train(multiview_mobilenet_model, train_data, optimization_algorithm)
+
+SET validation_metrics TO multiview_mobilenet_model.forward(validation_data)
+
+SET test_metrics TO multiview_mobilenet_model.forward(test_data)
+
+
+
+save_model(multiview_mobilenet_model)
+
+save_metrics(train_metrics, validation_metrics, test_metrics)
