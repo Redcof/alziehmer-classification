@@ -1,0 +1,32 @@
+{
+    "random_seed": 37,
+    "resume_training_timestamp": null,
+    "ablation": false,
+    "max_epoch": 50,
+    "initial_epoch": 0,
+    "gradient_accum": true,
+    "n_grad_accum_steps": 2,
+    "batch_size": 6,
+    "image_size": 128,
+    "volume_depth": 61,
+    "ablation_study_size": 0,
+    "color_mode": "rgb",
+    "trainable": true,
+    "devices": [
+        "CPU:0",
+        "GPU:0"
+    ],
+    "distributed": false,
+    "monitor": "accuracy",
+    "initial_threshold": 0.5,
+    "mode": "max",
+    "freq": "epoch",
+    "early_stop": true,
+    "precision": 32,
+    "learning_rate": 0.001,
+    "lr_schedular": false,
+    "enable_class_weight": false,
+    "model_ext": ".tf",
+    "task_type": "categorical",
+    "model_name": "MultiViewMobileNet"
+}
