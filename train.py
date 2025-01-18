@@ -3,7 +3,7 @@
 
 import psutil
 import time
-
+print_file_names = False
 def get_system_resource():
     cpu_percent = psutil.cpu_percent(interval=1)
     memory_info = psutil.virtual_memory()
@@ -124,9 +124,8 @@ if __name__ == '__main__':
 
 
     # # <font color='red'>Hyperparameters
-    print_file_names = True
-    hparams_json='hparams.json'
-    assert os.path.exists(hparams_json), "Unable to find {hparams_json}"
+    hparams_json=f'{log_root}/hparams.json'
+    assert os.path.exists(hparams_json), f"Unable to find {hparams_json}"
     import json
     with open(hparams_json) as f:
         d = json.load(f)
@@ -138,6 +137,14 @@ if __name__ == '__main__':
     max_epoch = d['max_epoch'] # CHANGE HERE
     initial_epoch=d['initial_epoch']
 
+    # data-related params
+    batch_size = d["batch_size"]
+    image_size = d['image_size']
+    volume_depth = d['volume_depth']
+    ablation_study_size = 0
+    color_mode = d['color_mode']
+    n_ch = dict(rgb=3, grayscale=1)[color_mode]
+
     # gradient accumulation and batch_size
     gradient_accum = d['gradient_accum']
     n_grad_accum_steps = 0
@@ -145,13 +152,6 @@ if __name__ == '__main__':
         print("Gradient accumulation is enabled")
         n_grad_accum_steps = d["gradient_accum-conf"]["n_grad_accum_steps"]
         batch_size = d["gradient_accum-conf"]["batch_size"]
-
-    # data-related params
-    image_size = d['image_size']
-    volume_depth = d['volume_depth']
-    ablation_study_size = 0
-    color_mode = d['color_mode']
-    n_ch = dict(rgb=3, grayscale=1)[color_mode]
 
     if ablation:
         print("Ablation study is enabled")
@@ -570,7 +570,7 @@ if __name__ == '__main__':
             image_volume = []
             for image_path in image_files:
                 if print_file_names:
-                    print(f'\r\b Reading:{idx:03} {image_path}... ', end='')
+                    print(f'\r\b Reading[{self.split_name}]:{idx:03} {image_path}... ', end='')
                 image_data = self._prepare_image(image_path)
                 # transforming images
                 if self.transforms is not None:

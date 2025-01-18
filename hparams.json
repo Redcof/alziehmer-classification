@@ -3,7 +3,7 @@
     "resume_training_timestamp": null,
     "max_epoch": 50,
     "initial_epoch": 0,
-    "ablation": true,
+    "ablation": false,
     "ablation-conf": {
         "max_epoch": 2,
         "ablation_study_size": 60,
@@ -18,9 +18,9 @@
         "image_size": 128,
         "volume_depth": 61
     },
-    "batch_size": 13,
+    "batch_size": 2,
     "image_size": 128,
-    "volume_depth": 61,
+    "volume_depth": 3,
     "color_mode": "rgb",
     "trainable": true,
     "devices": [

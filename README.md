@@ -15,8 +15,8 @@ docker build . -t deeplearning
 ```bash
 docker run  -itd --name oasis_trainer \
             -v <local-dataset-path>:/mnt/oasis \
-            -e "KAGGLE_USERNAME=<kaggel-username>" \
-            -e "KAGGLE_KEY=<kaggel-key>" \
+            -e "KAGGLE_USERNAME=*************" \
+            -e "KAGGLE_KEY=******************" \
             -m 32g --cpus=2\
             deeplearning
 ```
@@ -24,7 +24,7 @@ docker run  -itd --name oasis_trainer \
 ### Example
 
 ```bash
-# docker run -itd --name oasis_trainer -v C:\Users\phduser\Documents\experiment:/mnt/oasis -e "KAGGLE_USERNAME=gagan" -e "KAGGLE_KEY=123abc1256780956acedbacbed234523" deeplearning
+docker run -itd --name oasis_trainer -v "D:\CGC work\Alziehmer Disease\PhdNotebook\:/mnt/oasis" -e "KAGGLE_USERNAME=guxxxx1" -e "KAGGLE_KEY=0513c7fabxxxxxxx5d09c003cd961532" -m 14g --cpus=2  deeplearning
 ```
 
 ## Start training inside Docker container
