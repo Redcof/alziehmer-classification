@@ -2,7 +2,7 @@
 
 set -e
 
-if [ $(ls -A "./centos_amd64_deps" | wc -l) -ne 0 ];
+if [ $"(ls -A './centos_amd64_deps')" ];
 then
     echo "Empty whl folder";
     export NOINDEX='';
