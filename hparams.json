@@ -39,7 +39,7 @@
         "monitor": "loss",
         "mode": "min",
         "early_stop_patience": 7,
-        "delta": 0.001,
+        "delta": 0.01,
         "start_epoch": 3,
         "baseline": null
     },
