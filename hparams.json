@@ -1,43 +1,60 @@
 {
     "random_seed": 37,
+    "resume_training": true,
     "resume_training_timestamp": null,
     "max_epoch": 50,
     "initial_epoch": 0,
     "batch_size": 13,
     "image_size": 128,
     "volume_depth": 61,
+    "color_mode": "rgb",
+    "split_ratio_100": [
+        70,
+        20,
+        10
+    ],
     "gradient_accum": false,
     "n_grad_accum_steps": 2,
     "gradient_accum-conf": {
         "batch_size": 6,
-        "volume_depth": 61,
-        "image_size": 128
+        "image_size": 128,
+        "volume_depth": 61
     },
     "ablation": false,
     "ablation-conf": {
-        "max_epoch": 2,
+        "max_epoch": 100,
         "ablation_study_size": 60,
         "batch_size": 6,
         "image_size": 128,
         "volume_depth": 3
     },
-    "color_mode": "rgb",
     "trainable": true,
     "devices": [
         "CPU:0",
         "GPU:0"
     ],
     "distributed": false,
-    "monitor": "accuracy",
-    "initial_threshold": 0.5,
-    "mode": "max",
-    "freq": "epoch",
     "early_stop": true,
+    "early_stop-conf": {
+        "monitor": "loss",
+        "mode": "min",
+        "early_stop_patience": 7,
+        "delta": 0.001,
+        "start_epoch": 3,
+        "baseline": null
+    },
+    "performance_monitor-conf": {
+        "monitor": "accuracy",
+        "initial_threshold": 0.5,
+        "mode": "max",
+        "freq": "epoch"
+    },
     "precision": 32,
     "learning_rate": 0.001,
     "lr_schedular": false,
     "enable_class_weight": false,
     "model_ext": ".tf",
     "task_type": "categorical",
-    "model_name": "MultiViewMobileNet"
+    "model_name": "MultiViewMobileNet",
+    "print_file_names": false
 }
