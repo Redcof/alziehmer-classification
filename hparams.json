@@ -16,9 +16,7 @@
     "gradient_accum": false,
     "n_grad_accum_steps": 2,
     "gradient_accum-conf": {
-        "batch_size": 6,
-        "image_size": 128,
-        "volume_depth": 61
+        "batch_size": 6
     },
     "ablation": false,
     "ablation-conf": {
@@ -36,15 +34,15 @@
     "distributed": false,
     "early_stop": true,
     "early_stop-conf": {
-        "monitor": "loss",
+        "monitor": "val_loss",
         "mode": "min",
         "early_stop_patience": 7,
         "delta": 0.01,
-        "start_epoch": 3,
+        "start_epoch": 5,
         "baseline": null
     },
     "performance_monitor-conf": {
-        "monitor": "accuracy",
+        "monitor": "val_accuracy",
         "initial_threshold": 0.5,
         "mode": "max",
         "freq": "epoch"

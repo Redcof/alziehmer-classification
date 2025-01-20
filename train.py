@@ -2,11 +2,12 @@
 # coding: utf-8
 
 import time
-
+import matplotlib.pyplot as plt
+plt.rcParams['font.family'] = 'serif'
 import psutil
 from multiprocessing import Process
 import logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__file__)
 
 def get_system_resource():
@@ -193,8 +194,6 @@ if __name__ == "__main__":
         logger.info("Gradient accumulation is enabled")
         n_grad_accum_steps = hparam["gradient_accum-conf"]["n_grad_accum_steps"]
         batch_size = hparam["gradient_accum-conf"]["batch_size"]
-        image_size = hparam["gradient_accum-conf"]["image_size"]
-        volume_depth = hparam["gradient_accum-conf"]["volume_depth"]
 
     ablation = hparam["ablation"]
     ablation_study_size = 0
@@ -754,6 +753,7 @@ if __name__ == "__main__":
                     # read the image
                     image_data = self._prepare_image(image_path)
                     # plot original image
+                    plt.close()
                     figure = plt.figure(figsize=(16, 16))
                     ax = plt.subplot(1, 2, 1)
                     title = f"{found_classes[label]}. Original - {self.decode_labels(np.array([lbl]))[0]}"
@@ -765,11 +765,10 @@ if __name__ == "__main__":
                         image_data = self.transforms(image_data.astype("uint8"))
                     # plot transformed image
                     ax = plt.subplot(1, 2, 2)
-                    ax.set_title(f"Transformed")
+                    ax.set_title("Transformed")
                     plt.imshow(image_data)
                     tf_i = plot_to_tfimage(figure)
                     with tf_image_logger.as_default():
-                        tf_i = plot_to_tfimage(figure)
                         tf.summary.image(f"{title}", tf_i, step=0)
                         plt.imshow(tf_i.numpy()[0])
                         plt.axis("off")
@@ -981,20 +980,22 @@ if __name__ == "__main__":
             tf_i = tf_image_grid(x_batch[0], lbl)
             with tf_image_logger.as_default():
                 tf.summary.image(f"Input-sample-{volume_depth}", tf_i, step=0)
+            plt.close()
             figure = plt.figure(figsize=[10, 10])
+            ax = plt.subplot(111)
             plt.imshow(tf_i.numpy()[0])
             plt.axis("off")
             title = "Processed multiview MRI input for one subject"
-            plt.title(title)
+            ax.set_title(title)
             tf_i = plot_to_tfimage(figure)
             with tf_image_logger.as_default():
-                tf_i = plot_to_tfimage(figure)
                 tf.summary.image(f"{title}", tf_i, step=0)
                 plt.imshow(tf_i.numpy()[0])
                 plt.axis("off")
             break
 
     volume_viewer()
+
 
     # # Logger and Callbacks
 
