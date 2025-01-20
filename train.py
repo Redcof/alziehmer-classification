@@ -5,17 +5,19 @@ import time
 
 import psutil
 from multiprocessing import Process
-
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__file__)
 
 def get_system_resource():
     cpu_percent = psutil.cpu_percent(interval=1)
     memory_info = psutil.virtual_memory()
     disk_usage = psutil.disk_usage("/")
-    return f"{cpu_percent:06.2f},{memory_info.percent:06.2f},{disk_usage.percent:06.2f}"
+    return f"{cpu_percent:6.2f}%,{memory_info.percent:6.2f}%,{disk_usage.percent:6.2f}%"
 
 def loop_log_system_usage(artifact_root):
     fi = f"{artifact_root}/system_usage.csv"
-    print(f"Activity logging sdtarted in a seperate process: {fi}...")
+    logger.info(f"Activity logging sdtarted in a seperate process: {fi}...")
     with open(fi, "w") as log_file:
         log_file.write("time,cpu,memory,disk\n")
     while True:
@@ -25,7 +27,7 @@ def loop_log_system_usage(artifact_root):
             
 def log_system_usage(artifact_root):
     fi = f"{artifact_root}/system_usage.csv"
-    print(f"Activity logging sdtarted in a seperate process: {fi}...")
+    logger.debug(f"Capturing resource details in: {fi}...")
     with open(fi, "w") as log_file:
         log_file.write("time,cpu,memory,disk\n")
         log = f"{time.strftime('%Y-%m-%d %H:%M:%S')},{get_system_resource()}"
@@ -85,19 +87,19 @@ if __name__ == "__main__":
         import opendatasets as od
 
         with open("./kaggle.json", "w") as outfile:
-            print("Creating kaggle.json file")
+            logger.debug("Creating kaggle.json file")
             data = dict(
                 username=os.environ["KAGGLE_USERNAME"], key=os.environ["KAGGLE_KEY"]
             )
             json.dump(data, outfile)
 
         # Replace with the actual Kaggle dataset URL
-        print("Downloading OASIS dataset...")
+        logger.info("Downloading OASIS dataset...")
         dataset_url = "https://www.kaggle.com/datasets/ninadaithal/imagesoasis"
         od.download(dataset_url, data_dir=f"{log_root}/imagesoasis")
 
         with open("./kaggle.json", "w") as outfile:
-            print("Wiping out the kaggle.json file")
+            logger.debug("Wiping out the kaggle.json file")
 
     if not os.path.exists(datasetdir):
         download_oasis()
@@ -105,7 +107,7 @@ if __name__ == "__main__":
     # Dataset Selection
     # DO NOT TOUCH - END ===================================
     assert os.path.exists(datasetdir), f"Dataset path is incorrect {datasetdir}"
-    print(datasetdir, dataset_name)
+    logger.info(f"{datasetdir}, {dataset_name}")
 
     # # Test Image selection
 
@@ -118,7 +120,7 @@ if __name__ == "__main__":
     assert os.path.exists(TEST_IMG_PATH), (
         f"Test image path is incorrect {TEST_IMG_PATH}"
     )
-    print(TEST_IMG_PATH, TEST_IMG_LABEL)
+    logger.info(f"{TEST_IMG_PATH}, {TEST_IMG_LABEL}")
 
     import json
     import os
@@ -166,7 +168,7 @@ if __name__ == "__main__":
             return float("-inf")
         return obj
 
-    print("Loading hyper-params...")
+    logger.info("Loading hyper-params...")
     with open(hparams_json) as f:
         hparam = json.load(f, object_hook=infinity_decoder)
 
@@ -188,7 +190,7 @@ if __name__ == "__main__":
     gradient_accum = hparam["gradient_accum"]
     n_grad_accum_steps = 0
     if gradient_accum:
-        print("Gradient accumulation is enabled")
+        logger.info("Gradient accumulation is enabled")
         n_grad_accum_steps = hparam["gradient_accum-conf"]["n_grad_accum_steps"]
         batch_size = hparam["gradient_accum-conf"]["batch_size"]
         image_size = hparam["gradient_accum-conf"]["image_size"]
@@ -197,7 +199,7 @@ if __name__ == "__main__":
     ablation = hparam["ablation"]
     ablation_study_size = 0
     if ablation:
-        print("Ablation study is enabled")
+        logger.info("Ablation study is enabled")
         max_epoch = hparam["ablation-conf"]["max_epoch"]
         ablation_study_size = hparam["ablation-conf"]["ablation_study_size"]
         batch_size = hparam["ablation-conf"]["batch_size"]
@@ -248,9 +250,9 @@ if __name__ == "__main__":
     model_name = hparam["model_name"]  # CHANGE HERE !!!!!!!
     # Add a comment about what changes you have done just now before running the training
     what_changed = f"Training with {model_name=} {task_type=} {lr_schedular=} {activation=} {loss_function=} {ablation_study_size=}"
-    print(f"{what_changed=}")
-    print("cache file prefix:", cache_file_name_fmt)
-    print("hyperparams:", hparam)
+    logger.info(f"{what_changed=}")
+    logger.info(f"cache file prefix: {cache_file_name_fmt}")
+    logger.debug(f"hyperparams: {hparam}")
 
     # Learning rate schedular callback
     def lr_schedule(epoch):
@@ -278,7 +280,7 @@ if __name__ == "__main__":
 
     # load the model form the given timestamp
     if resume_training_timestamp:
-        print(f"Trying to resume from checkpoint... {resume_training_timestamp}")
+        logger.info(f"Trying to resume from checkpoint... {resume_training_timestamp}")
         d = get_experiment_details(dataset_name, model_name, resume_training_timestamp)
         initial_epoch = d["last_epoch"]
         resume_checkpoint_path = d["last_checkpoint"]
@@ -287,14 +289,14 @@ if __name__ == "__main__":
         )
         best_model_info = d["best_model_info"]
         if best_model_info:
-            print(
+            logger.info(
                 "Updating the metric monitoring parameters before resuming the checkpoint"
             )
             monitor = best_model_info["monitor"]
             initial_threshold = best_model_info["value"]
             mode = best_model_info["mode"]
             freq = best_model_info["frequency"]
-        print(f"Resuming checkpoint form epoch={initial_epoch}.")
+        logger.info(f"Resuming checkpoint form epoch={initial_epoch}.")
     # =====================================================
 
     def save_hparams():
@@ -303,7 +305,7 @@ if __name__ == "__main__":
         import json
 
         log("Saving hyperparameters.")
-        print(hyprams)
+        logger.debug(hyprams)
         # Convert and write JSON object to file
         with open(f"{artifact_root}/hyperparams.json", "w") as outfile:
             json.dump(hyprams, outfile, indent=4)
@@ -326,10 +328,10 @@ if __name__ == "__main__":
 
     timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     if resume_training_timestamp:
-        print("Resume timestamp", resume_training_timestamp)
+        logger.info(f"Resume timestamp {resume_training_timestamp}")
         timestamp = resume_training_timestamp
     # save timestamp
-    print("Saving timestamp...")
+    logger.info("Saving timestamp...")
     with open(experiment_id_path, "w") as fp:
         fp.write(timestamp)
     unique_dir = f"{model_name}/{timestamp}"
@@ -534,11 +536,11 @@ if __name__ == "__main__":
                     subject_groups[subject_id] = []
                 subject_groups[subject_id].append(os.path.join(image_dir, filename))
             if self.verbose:
-                print(
-                    "For",
-                    len(subject_groups.keys()),
-                    "patients,",
-                    len(image_files),
+                logger.info(
+                    f"For"
+                    f"{len(subject_groups.keys())}"
+                    "patients,"
+                    f"{len(image_files)}"
                     f"images scanned from '{image_dir}'",
                 )
             return subject_groups
@@ -690,7 +692,7 @@ if __name__ == "__main__":
             val_size = val_batches * self.batch_size
             test_size = test_batches * self.batch_size
             if self.verbose:
-                print(f"Dataset {train_size=}, {val_size=}, and {test_size=}")
+                logger.info(f"Dataset {train_size=}, {val_size=}, and {test_size=}")
             return train_size, val_size, test_size
 
         def _split(self, items):
@@ -721,7 +723,7 @@ if __name__ == "__main__":
             random.shuffle(items)
             # ablation
             if self.ablation:
-                print("It is an ablation study. Reducing dataset")
+                logger.info("This is an ablation study. Reducing dataset")
                 items = items[: self.ablation]
             # split
             self.items = self._split(items)
@@ -881,21 +883,19 @@ if __name__ == "__main__":
             self.num_items = (
                 len(torch_data_train) + len(torch_data_val) + len(torch_data_test)
             )
-            print("Number of patients:", self.num_items)
-            print("Class Names:", self.classnames)
-            print("Number of classes:", self.num_classes)
-            print(
-                f"Minimum MRI-Volume waste for {batch_size=} is",
-                self.num_items % batch_size,
+            logger.info(f"Number of patients: {self.num_items}")
+            logger.info(f"Class Names: {self.classnames}")
+            logger.info(f"Number of classes: {self.num_classes}")
+            logger.info(
+                f"Minimum MRI-Volume waste for {batch_size=} is {self.num_items % batch_size}"
             )
-            print(
-                f"Minimum MRI-Slices waste for {batch_size=} is",
-                self.num_items % batch_size * torch_data_train.VOLUME_DEPTH,
+            logger.info(
+                f"Minimum MRI-Slices waste for {batch_size=} is {self.num_items % batch_size * torch_data_train.VOLUME_DEPTH}"
             )
             self.recommended_batches = [
                 i for i in range(2, self.num_items + 1) if self.num_items % i == 0
             ]
-            print(f"0 waste batch recommendations:", self.recommended_batches)
+            logger.info(f"0 waste batch recommendations: {self.recommended_batches}")
             # convert torch to tf dataset
             train_dataset = self.torch_to_tf(torch_data_train, batch_size).cache(
                 f"{cache_file_name_fmt}-{self.num_classes}_train.tfrecord"
@@ -956,7 +956,7 @@ if __name__ == "__main__":
     num_classes = odd.num_classes
 
     class_weights = None
-    print("class_weights", class_weights, "==============", get_system_resource())
+    logger.info(f"class_weights: {class_weights}, {get_system_resource()}")
 
     # # Plot to Image and tensorboard logging
 
@@ -1022,7 +1022,7 @@ if __name__ == "__main__":
         baseline=early_stop_baseline,
     )
 
-    csv_logger = CSVLogger(artifact_root + "/metrics.csv")
+    csv_logger = CSVLogger(artifact_root + "/metrics.csv", append=True)
     # Tensorboard Logger
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
         log_dir=tf_log_dir,
@@ -1089,7 +1089,7 @@ if __name__ == "__main__":
             if self.is_better(curr_val, self.best_value):
                 update_path = artifact_root + "/bestvalue.json"
                 if self.verbose:
-                    print(
+                    logger.info(
                         f"Epoch {epoch + 1}: {self.monitor} improved form {self.best_value:.5f} to {curr_val:.5f} and saving updates to {update_path}"
                     )
                 self.best_value = curr_val
@@ -1107,7 +1107,7 @@ if __name__ == "__main__":
                     )
             else:
                 if self.verbose:
-                    self.print(
+                    self.logger.info(
                         f"Epoch {epoch + 1}: {self.monitor} did not improved form {self.best_value}"
                     )
 
@@ -1325,12 +1325,12 @@ if __name__ == "__main__":
 
         if gradient_accum:
             # input_tensor = keras.Input(shape=(volume_depth, image_size, image_size, n_ch))
-            print("Printing model summary...", get_system_resource())
+            logger.info(f"Printing model summary... {get_system_resource()}")
             model.summary()
             model = CustomTrainStep(model, n_gradients=n_grad_accum_steps)
             model.build((None, volume_depth, image_size, image_size, n_ch))
         else:
-            print("Printing model summary...", get_system_resource())
+            logger.info(f"Printing model summary... {get_system_resource()}")
             model.summary()
 
         # Compile the model
@@ -1354,7 +1354,7 @@ if __name__ == "__main__":
 
     # Create a strategy to distribute training across CPU and GPU
     if distributed:
-        print("Distributed trainig is enabled")
+        logger.info("Distributed trainig is enabled")
         import keras
         import tensorflow as tf
 
@@ -1365,9 +1365,9 @@ if __name__ == "__main__":
         model, optimizer, metrics = prepare_model()
 
     # Warm-up the strategy by performing a single training step
-    print("Running warm-up step training...", get_system_resource())
+    logger.info(f"Running warm-up step training... {get_system_resource()}")
     dummy_data = get_dummy_dataset()
-    print("Dummy dataset is prepared for warm-up.", get_system_resource())
+    logger.info(f"Dummy dataset is prepared for warm-up. {get_system_resource()}")
     model.fit(
         dummy_data,
         validation_data=dummy_data,
@@ -1376,7 +1376,7 @@ if __name__ == "__main__":
         steps_per_epoch=1,
     )
     del dummy_data
-    print("Model warm-up is done.", get_system_resource())
+    logger.info(f"Model warm-up is done. {get_system_resource()}")
 
     # # Saving parameters
 
@@ -1448,7 +1448,7 @@ if __name__ == "__main__":
 
     def analyse_result(df, prefix):
         try:
-            print(f"======================{prefix}=========================")
+            logger.info(f"======================{prefix}=========================")
             y_true = df["actual"]
             y_pred = df["predicted"]
 
@@ -1496,8 +1496,8 @@ if __name__ == "__main__":
             ) as fp:
                 fp.write(report)
         except Exception as e:
-            print(e)
-            print("The dataset does not have all the classes")
+            logger.exception(e)
+            logger.info("The dataset does not have all the classes")
 
     analyse_result(train_df, "Training")
     analyse_result(val_df, "Validation")
@@ -1509,7 +1509,7 @@ if __name__ == "__main__":
         # Open the image file
         img_array, lbl, cls_name = odd.sample_dataset.get_volume_for_image(image_path)
         img_array = np.expand_dims(img_array, axis=0)
-        print(img_array.shape)
+        logger.debug(img_array.shape)
         return img_array
 
     # Example usage:
@@ -1523,7 +1523,7 @@ if __name__ == "__main__":
     prediction_probabilities = model.predict(image_array)
 
     # Get the index of the highest probability
-    print(list(zip(prediction_probabilities.tolist()[0], CLASS_NAMES)))
+    logger.debug(list(zip(prediction_probabilities.tolist()[0], CLASS_NAMES)))
     predicted_class_index = np.argmax(prediction_probabilities)
 
     # Define your class labelsa
