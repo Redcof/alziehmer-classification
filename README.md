@@ -13,11 +13,11 @@ docker build . -t deeplearning
 ## Start Docker container
 
 ```bash
-docker run  -itd --name oasis_trainer \
+docker run  -itd --name oasis_trainer          \
             -v <local-dataset-path>:/mnt/oasis \
             -e "KAGGLE_USERNAME=*************" \
             -e "KAGGLE_KEY=******************" \
-            -m 32g --cpus=2\
+            -m 32g --cpus=2                    \
             deeplearning
 ```
 

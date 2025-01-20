@@ -8,6 +8,6 @@
 /oasis_cache*
 __pycache__
 kaggle.json
-/docker/centos_amd64_deps
+/centos_amd64_deps/*
 /imagesoasis/*
 /current_experiment_timestamp_id.txt
