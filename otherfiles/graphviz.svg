@@ -1,0 +1,860 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2513pt" height="1579pt" viewBox="0.00 0.00 1885.02 1184.40">
+<g id="graph0" class="graph" transform="scale(1.33333 1.33333) rotate(0) translate(4 1180.4)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-1180.4 1881.02,-1180.4 1881.02,4 -4,4"/>
+<!-- 14195787520 -->
+<g id="node1" class="node">
+<title>14195787520</title>
+<polygon fill="none" stroke="black" points="778.41,-1126.3 778.41,-1175.9 1098.61,-1175.9 1098.61,-1126.3 778.41,-1126.3"/>
+<text text-anchor="middle" x="836.19" y="-1159.3" font-family="Times,serif" font-size="14.00">multi_view_input</text>
+<polyline fill="none" stroke="black" points="778.41,-1151.1 893.96,-1151.1"/>
+<text text-anchor="middle" x="836.19" y="-1134.5" font-family="Times,serif" font-size="14.00">InputLayer</text>
+<polyline fill="none" stroke="black" points="893.96,-1126.3 893.96,-1175.9"/>
+<text text-anchor="middle" x="921.8" y="-1159.3" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="893.96,-1151.1 949.63,-1151.1"/>
+<text text-anchor="middle" x="921.8" y="-1134.5" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="949.63,-1126.3 949.63,-1175.9"/>
+<text text-anchor="middle" x="1024.12" y="-1159.3" font-family="Times,serif" font-size="14.00">[(None, 5, 128, 128, 3)]</text>
+<polyline fill="none" stroke="black" points="949.63,-1151.1 1098.61,-1151.1"/>
+<text text-anchor="middle" x="1024.12" y="-1134.5" font-family="Times,serif" font-size="14.00">[(None, 5, 128, 128, 3)]</text>
+</g>
+<!-- 14224023952 -->
+<g id="node2" class="node">
+<title>14224023952</title>
+<polygon fill="none" stroke="black" points="540.45,-1039.7 540.45,-1089.3 1336.56,-1089.3 1336.56,-1039.7 540.45,-1039.7"/>
+<text text-anchor="middle" x="609.89" y="-1072.7" font-family="Times,serif" font-size="14.00">distribute_view_input</text>
+<polyline fill="none" stroke="black" points="540.45,-1064.5 679.33,-1064.5"/>
+<text text-anchor="middle" x="609.89" y="-1047.9" font-family="Times,serif" font-size="14.00">Lambda</text>
+<polyline fill="none" stroke="black" points="679.33,-1039.7 679.33,-1089.3"/>
+<text text-anchor="middle" x="707.16" y="-1072.7" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="679.33,-1064.5 735,-1064.5"/>
+<text text-anchor="middle" x="707.16" y="-1047.9" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="735,-1039.7 735,-1089.3"/>
+<text text-anchor="middle" x="1035.32" y="-1072.7" font-family="Times,serif" font-size="14.00">(None, 5, 128, 128, 3)</text>
+<polyline fill="none" stroke="black" points="735,-1064.5 1336.56,-1064.5"/>
+<text text-anchor="middle" x="1035.78" y="-1047.9" font-family="Times,serif" font-size="14.00">[(None, 128, 128, 3), (None, 128, 128, 3), (None, 128, 128, 3), (None, 128, 128, 3), (None, 128, 128, 3)]</text>
+</g>
+<!-- 14195787520&#45;&gt;14224023952 -->
+<g id="edge1" class="edge">
+<title>14195787520-&gt;14224023952</title>
+<path fill="none" stroke="black" d="M938.51,-1126.08C938.51,-1118.22 938.51,-1109.32 938.51,-1100.81"/>
+<polygon fill="black" stroke="black" points="942.01,-1101.09 938.51,-1091.09 935.01,-1101.09 942.01,-1101.09"/>
+</g>
+<!-- 14233922432 -->
+<g id="node3" class="node">
+<title>14233922432</title>
+<polygon fill="none" stroke="black" points="0,-953.1 0,-1002.7 361.02,-1002.7 361.02,-953.1 0,-953.1"/>
+<text text-anchor="middle" x="89.85" y="-986.1" font-family="Times,serif" font-size="14.00">mobilenet_1.00_128_view_0</text>
+<polyline fill="none" stroke="black" points="0,-977.9 179.7,-977.9"/>
+<text text-anchor="middle" x="89.85" y="-961.3" font-family="Times,serif" font-size="14.00">Functional</text>
+<polyline fill="none" stroke="black" points="179.7,-953.1 179.7,-1002.7"/>
+<text text-anchor="middle" x="207.53" y="-986.1" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="179.7,-977.9 235.37,-977.9"/>
+<text text-anchor="middle" x="207.53" y="-961.3" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="235.37,-953.1 235.37,-1002.7"/>
+<text text-anchor="middle" x="298.19" y="-986.1" font-family="Times,serif" font-size="14.00">(None, 128, 128, 3)</text>
+<polyline fill="none" stroke="black" points="235.37,-977.9 361.02,-977.9"/>
+<text text-anchor="middle" x="298.19" y="-961.3" font-family="Times,serif" font-size="14.00">(None, 4, 4, 1024)</text>
+</g>
+<!-- 14224023952&#45;&gt;14233922432 -->
+<g id="edge2" class="edge">
+<title>14224023952-&gt;14233922432</title>
+<path fill="none" stroke="black" d="M698.2,-1039.23C599.98,-1029.01 484.98,-1016.66 372.54,-1003.55"/>
+<polygon fill="black" stroke="black" points="373.16,-1000.09 362.82,-1002.41 372.34,-1007.05 373.16,-1000.09"/>
+</g>
+<!-- 14249852256 -->
+<g id="node4" class="node">
+<title>14249852256</title>
+<polygon fill="none" stroke="black" points="379,-953.1 379,-1002.7 740.02,-1002.7 740.02,-953.1 379,-953.1"/>
+<text text-anchor="middle" x="468.85" y="-986.1" font-family="Times,serif" font-size="14.00">mobilenet_1.00_128_view_1</text>
+<polyline fill="none" stroke="black" points="379,-977.9 558.7,-977.9"/>
+<text text-anchor="middle" x="468.85" y="-961.3" font-family="Times,serif" font-size="14.00">Functional</text>
+<polyline fill="none" stroke="black" points="558.7,-953.1 558.7,-1002.7"/>
+<text text-anchor="middle" x="586.53" y="-986.1" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="558.7,-977.9 614.37,-977.9"/>
+<text text-anchor="middle" x="586.53" y="-961.3" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="614.37,-953.1 614.37,-1002.7"/>
+<text text-anchor="middle" x="677.19" y="-986.1" font-family="Times,serif" font-size="14.00">(None, 128, 128, 3)</text>
+<polyline fill="none" stroke="black" points="614.37,-977.9 740.02,-977.9"/>
+<text text-anchor="middle" x="677.19" y="-961.3" font-family="Times,serif" font-size="14.00">(None, 4, 4, 1024)</text>
+</g>
+<!-- 14224023952&#45;&gt;14249852256 -->
+<g id="edge3" class="edge">
+<title>14224023952-&gt;14249852256</title>
+<path fill="none" stroke="black" d="M829.65,-1039.2C782.68,-1028.72 727.58,-1016.42 679.44,-1005.67"/>
+<polygon fill="black" stroke="black" points="680.32,-1002.28 669.8,-1003.52 678.79,-1009.11 680.32,-1002.28"/>
+</g>
+<!-- 14333960928 -->
+<g id="node5" class="node">
+<title>14333960928</title>
+<polygon fill="none" stroke="black" points="758,-953.1 758,-1002.7 1119.02,-1002.7 1119.02,-953.1 758,-953.1"/>
+<text text-anchor="middle" x="847.85" y="-986.1" font-family="Times,serif" font-size="14.00">mobilenet_1.00_128_view_2</text>
+<polyline fill="none" stroke="black" points="758,-977.9 937.7,-977.9"/>
+<text text-anchor="middle" x="847.85" y="-961.3" font-family="Times,serif" font-size="14.00">Functional</text>
+<polyline fill="none" stroke="black" points="937.7,-953.1 937.7,-1002.7"/>
+<text text-anchor="middle" x="965.53" y="-986.1" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="937.7,-977.9 993.37,-977.9"/>
+<text text-anchor="middle" x="965.53" y="-961.3" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="993.37,-953.1 993.37,-1002.7"/>
+<text text-anchor="middle" x="1056.19" y="-986.1" font-family="Times,serif" font-size="14.00">(None, 128, 128, 3)</text>
+<polyline fill="none" stroke="black" points="993.37,-977.9 1119.02,-977.9"/>
+<text text-anchor="middle" x="1056.19" y="-961.3" font-family="Times,serif" font-size="14.00">(None, 4, 4, 1024)</text>
+</g>
+<!-- 14224023952&#45;&gt;14333960928 -->
+<g id="edge4" class="edge">
+<title>14224023952-&gt;14333960928</title>
+<path fill="none" stroke="black" d="M938.51,-1039.48C938.51,-1031.62 938.51,-1022.72 938.51,-1014.21"/>
+<polygon fill="black" stroke="black" points="942.01,-1014.49 938.51,-1004.49 935.01,-1014.49 942.01,-1014.49"/>
+</g>
+<!-- 14359611232 -->
+<g id="node6" class="node">
+<title>14359611232</title>
+<polygon fill="none" stroke="black" points="1137,-953.1 1137,-1002.7 1498.02,-1002.7 1498.02,-953.1 1137,-953.1"/>
+<text text-anchor="middle" x="1226.85" y="-986.1" font-family="Times,serif" font-size="14.00">mobilenet_1.00_128_view_3</text>
+<polyline fill="none" stroke="black" points="1137,-977.9 1316.7,-977.9"/>
+<text text-anchor="middle" x="1226.85" y="-961.3" font-family="Times,serif" font-size="14.00">Functional</text>
+<polyline fill="none" stroke="black" points="1316.7,-953.1 1316.7,-1002.7"/>
+<text text-anchor="middle" x="1344.53" y="-986.1" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="1316.7,-977.9 1372.37,-977.9"/>
+<text text-anchor="middle" x="1344.53" y="-961.3" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1372.37,-953.1 1372.37,-1002.7"/>
+<text text-anchor="middle" x="1435.19" y="-986.1" font-family="Times,serif" font-size="14.00">(None, 128, 128, 3)</text>
+<polyline fill="none" stroke="black" points="1372.37,-977.9 1498.02,-977.9"/>
+<text text-anchor="middle" x="1435.19" y="-961.3" font-family="Times,serif" font-size="14.00">(None, 4, 4, 1024)</text>
+</g>
+<!-- 14224023952&#45;&gt;14359611232 -->
+<g id="edge5" class="edge">
+<title>14224023952-&gt;14359611232</title>
+<path fill="none" stroke="black" d="M1047.37,-1039.2C1094.34,-1028.72 1149.44,-1016.42 1197.58,-1005.67"/>
+<polygon fill="black" stroke="black" points="1198.22,-1009.11 1207.22,-1003.52 1196.7,-1002.28 1198.22,-1009.11"/>
+</g>
+<!-- 14656143520 -->
+<g id="node7" class="node">
+<title>14656143520</title>
+<polygon fill="none" stroke="black" points="1516,-953.1 1516,-1002.7 1877.02,-1002.7 1877.02,-953.1 1516,-953.1"/>
+<text text-anchor="middle" x="1605.85" y="-986.1" font-family="Times,serif" font-size="14.00">mobilenet_1.00_128_view_4</text>
+<polyline fill="none" stroke="black" points="1516,-977.9 1695.7,-977.9"/>
+<text text-anchor="middle" x="1605.85" y="-961.3" font-family="Times,serif" font-size="14.00">Functional</text>
+<polyline fill="none" stroke="black" points="1695.7,-953.1 1695.7,-1002.7"/>
+<text text-anchor="middle" x="1723.53" y="-986.1" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="1695.7,-977.9 1751.37,-977.9"/>
+<text text-anchor="middle" x="1723.53" y="-961.3" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1751.37,-953.1 1751.37,-1002.7"/>
+<text text-anchor="middle" x="1814.19" y="-986.1" font-family="Times,serif" font-size="14.00">(None, 128, 128, 3)</text>
+<polyline fill="none" stroke="black" points="1751.37,-977.9 1877.02,-977.9"/>
+<text text-anchor="middle" x="1814.19" y="-961.3" font-family="Times,serif" font-size="14.00">(None, 4, 4, 1024)</text>
+</g>
+<!-- 14224023952&#45;&gt;14656143520 -->
+<g id="edge6" class="edge">
+<title>14224023952-&gt;14656143520</title>
+<path fill="none" stroke="black" d="M1178.81,-1039.23C1277.03,-1029.01 1392.04,-1016.66 1504.48,-1003.55"/>
+<polygon fill="black" stroke="black" points="1504.67,-1007.05 1514.2,-1002.41 1503.86,-1000.09 1504.67,-1007.05"/>
+</g>
+<!-- 14231495488 -->
+<g id="node8" class="node">
+<title>14231495488</title>
+<polygon fill="none" stroke="black" points="64.74,-866.5 64.74,-916.1 310.27,-916.1 310.27,-866.5 64.74,-866.5"/>
+<text text-anchor="middle" x="100.35" y="-899.5" font-family="Times,serif" font-size="14.00">conv2d_5</text>
+<polyline fill="none" stroke="black" points="64.74,-891.3 135.96,-891.3"/>
+<text text-anchor="middle" x="100.35" y="-874.7" font-family="Times,serif" font-size="14.00">Conv2D</text>
+<polyline fill="none" stroke="black" points="135.96,-866.5 135.96,-916.1"/>
+<text text-anchor="middle" x="163.79" y="-899.5" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="135.96,-891.3 191.63,-891.3"/>
+<text text-anchor="middle" x="163.79" y="-874.7" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="191.63,-866.5 191.63,-916.1"/>
+<text text-anchor="middle" x="250.95" y="-899.5" font-family="Times,serif" font-size="14.00">(None, 4, 4, 1024)</text>
+<polyline fill="none" stroke="black" points="191.63,-891.3 310.27,-891.3"/>
+<text text-anchor="middle" x="250.95" y="-874.7" font-family="Times,serif" font-size="14.00">(None, 2, 2, 256)</text>
+</g>
+<!-- 14233922432&#45;&gt;14231495488 -->
+<g id="edge7" class="edge">
+<title>14233922432-&gt;14231495488</title>
+<path fill="none" stroke="black" d="M182.5,-952.88C183.15,-945.02 183.88,-936.12 184.59,-927.61"/>
+<polygon fill="black" stroke="black" points="188.06,-928.14 185.39,-917.89 181.08,-927.56 188.06,-928.14"/>
+</g>
+<!-- 14249660032 -->
+<g id="node9" class="node">
+<title>14249660032</title>
+<polygon fill="none" stroke="black" points="438.74,-866.5 438.74,-916.1 684.27,-916.1 684.27,-866.5 438.74,-866.5"/>
+<text text-anchor="middle" x="474.35" y="-899.5" font-family="Times,serif" font-size="14.00">conv2d_6</text>
+<polyline fill="none" stroke="black" points="438.74,-891.3 509.96,-891.3"/>
+<text text-anchor="middle" x="474.35" y="-874.7" font-family="Times,serif" font-size="14.00">Conv2D</text>
+<polyline fill="none" stroke="black" points="509.96,-866.5 509.96,-916.1"/>
+<text text-anchor="middle" x="537.79" y="-899.5" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="509.96,-891.3 565.63,-891.3"/>
+<text text-anchor="middle" x="537.79" y="-874.7" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="565.63,-866.5 565.63,-916.1"/>
+<text text-anchor="middle" x="624.95" y="-899.5" font-family="Times,serif" font-size="14.00">(None, 4, 4, 1024)</text>
+<polyline fill="none" stroke="black" points="565.63,-891.3 684.27,-891.3"/>
+<text text-anchor="middle" x="624.95" y="-874.7" font-family="Times,serif" font-size="14.00">(None, 2, 2, 256)</text>
+</g>
+<!-- 14249852256&#45;&gt;14249660032 -->
+<g id="edge8" class="edge">
+<title>14249852256-&gt;14249660032</title>
+<path fill="none" stroke="black" d="M560.08,-952.88C560.26,-945.02 560.47,-936.12 560.67,-927.61"/>
+<polygon fill="black" stroke="black" points="564.17,-927.97 560.9,-917.89 557.17,-927.8 564.17,-927.97"/>
+</g>
+<!-- 14244490736 -->
+<g id="node10" class="node">
+<title>14244490736</title>
+<polygon fill="none" stroke="black" points="815.74,-866.5 815.74,-916.1 1061.27,-916.1 1061.27,-866.5 815.74,-866.5"/>
+<text text-anchor="middle" x="851.35" y="-899.5" font-family="Times,serif" font-size="14.00">conv2d_7</text>
+<polyline fill="none" stroke="black" points="815.74,-891.3 886.96,-891.3"/>
+<text text-anchor="middle" x="851.35" y="-874.7" font-family="Times,serif" font-size="14.00">Conv2D</text>
+<polyline fill="none" stroke="black" points="886.96,-866.5 886.96,-916.1"/>
+<text text-anchor="middle" x="914.79" y="-899.5" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="886.96,-891.3 942.63,-891.3"/>
+<text text-anchor="middle" x="914.79" y="-874.7" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="942.63,-866.5 942.63,-916.1"/>
+<text text-anchor="middle" x="1001.95" y="-899.5" font-family="Times,serif" font-size="14.00">(None, 4, 4, 1024)</text>
+<polyline fill="none" stroke="black" points="942.63,-891.3 1061.27,-891.3"/>
+<text text-anchor="middle" x="1001.95" y="-874.7" font-family="Times,serif" font-size="14.00">(None, 2, 2, 256)</text>
+</g>
+<!-- 14333960928&#45;&gt;14244490736 -->
+<g id="edge9" class="edge">
+<title>14333960928-&gt;14244490736</title>
+<path fill="none" stroke="black" d="M938.51,-952.88C938.51,-945.02 938.51,-936.12 938.51,-927.61"/>
+<polygon fill="black" stroke="black" points="942.01,-927.89 938.51,-917.89 935.01,-927.89 942.01,-927.89"/>
+</g>
+<!-- 14352526928 -->
+<g id="node11" class="node">
+<title>14352526928</title>
+<polygon fill="none" stroke="black" points="1192.74,-866.5 1192.74,-916.1 1438.27,-916.1 1438.27,-866.5 1192.74,-866.5"/>
+<text text-anchor="middle" x="1228.35" y="-899.5" font-family="Times,serif" font-size="14.00">conv2d_8</text>
+<polyline fill="none" stroke="black" points="1192.74,-891.3 1263.96,-891.3"/>
+<text text-anchor="middle" x="1228.35" y="-874.7" font-family="Times,serif" font-size="14.00">Conv2D</text>
+<polyline fill="none" stroke="black" points="1263.96,-866.5 1263.96,-916.1"/>
+<text text-anchor="middle" x="1291.79" y="-899.5" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="1263.96,-891.3 1319.63,-891.3"/>
+<text text-anchor="middle" x="1291.79" y="-874.7" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1319.63,-866.5 1319.63,-916.1"/>
+<text text-anchor="middle" x="1378.95" y="-899.5" font-family="Times,serif" font-size="14.00">(None, 4, 4, 1024)</text>
+<polyline fill="none" stroke="black" points="1319.63,-891.3 1438.27,-891.3"/>
+<text text-anchor="middle" x="1378.95" y="-874.7" font-family="Times,serif" font-size="14.00">(None, 2, 2, 256)</text>
+</g>
+<!-- 14359611232&#45;&gt;14352526928 -->
+<g id="edge10" class="edge">
+<title>14359611232-&gt;14352526928</title>
+<path fill="none" stroke="black" d="M1316.94,-952.88C1316.76,-945.02 1316.54,-936.12 1316.34,-927.61"/>
+<polygon fill="black" stroke="black" points="1319.85,-927.8 1316.11,-917.89 1312.85,-927.97 1319.85,-927.8"/>
+</g>
+<!-- 14656303984 -->
+<g id="node12" class="node">
+<title>14656303984</title>
+<polygon fill="none" stroke="black" points="1570.74,-866.5 1570.74,-916.1 1816.27,-916.1 1816.27,-866.5 1570.74,-866.5"/>
+<text text-anchor="middle" x="1606.35" y="-899.5" font-family="Times,serif" font-size="14.00">conv2d_9</text>
+<polyline fill="none" stroke="black" points="1570.74,-891.3 1641.96,-891.3"/>
+<text text-anchor="middle" x="1606.35" y="-874.7" font-family="Times,serif" font-size="14.00">Conv2D</text>
+<polyline fill="none" stroke="black" points="1641.96,-866.5 1641.96,-916.1"/>
+<text text-anchor="middle" x="1669.79" y="-899.5" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="1641.96,-891.3 1697.63,-891.3"/>
+<text text-anchor="middle" x="1669.79" y="-874.7" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1697.63,-866.5 1697.63,-916.1"/>
+<text text-anchor="middle" x="1756.95" y="-899.5" font-family="Times,serif" font-size="14.00">(None, 4, 4, 1024)</text>
+<polyline fill="none" stroke="black" points="1697.63,-891.3 1816.27,-891.3"/>
+<text text-anchor="middle" x="1756.95" y="-874.7" font-family="Times,serif" font-size="14.00">(None, 2, 2, 256)</text>
+</g>
+<!-- 14656143520&#45;&gt;14656303984 -->
+<g id="edge11" class="edge">
+<title>14656143520-&gt;14656303984</title>
+<path fill="none" stroke="black" d="M1695.66,-952.88C1695.38,-945.02 1695.06,-936.12 1694.76,-927.61"/>
+<polygon fill="black" stroke="black" points="1698.27,-927.76 1694.42,-917.89 1691.27,-928.01 1698.27,-927.76"/>
+</g>
+<!-- 14231495776 -->
+<g id="node13" class="node">
+<title>14231495776</title>
+<polygon fill="none" stroke="black" points="58.91,-779.9 58.91,-829.5 344.11,-829.5 344.11,-779.9 58.91,-779.9"/>
+<text text-anchor="middle" x="117.85" y="-812.9" font-family="Times,serif" font-size="14.00">max_pooling2d_5</text>
+<polyline fill="none" stroke="black" points="58.91,-804.7 176.79,-804.7"/>
+<text text-anchor="middle" x="117.85" y="-788.1" font-family="Times,serif" font-size="14.00">MaxPooling2D</text>
+<polyline fill="none" stroke="black" points="176.79,-779.9 176.79,-829.5"/>
+<text text-anchor="middle" x="204.63" y="-812.9" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="176.79,-804.7 232.46,-804.7"/>
+<text text-anchor="middle" x="204.63" y="-788.1" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="232.46,-779.9 232.46,-829.5"/>
+<text text-anchor="middle" x="288.28" y="-812.9" font-family="Times,serif" font-size="14.00">(None, 2, 2, 256)</text>
+<polyline fill="none" stroke="black" points="232.46,-804.7 344.11,-804.7"/>
+<text text-anchor="middle" x="288.28" y="-788.1" font-family="Times,serif" font-size="14.00">(None, 1, 1, 256)</text>
+</g>
+<!-- 14231495488&#45;&gt;14231495776 -->
+<g id="edge12" class="edge">
+<title>14231495488-&gt;14231495776</title>
+<path fill="none" stroke="black" d="M191.48,-866.28C192.78,-858.42 194.26,-849.52 195.67,-841.01"/>
+<polygon fill="black" stroke="black" points="199.1,-841.71 197.28,-831.27 192.19,-840.56 199.1,-841.71"/>
+</g>
+<!-- 14247410992 -->
+<g id="node14" class="node">
+<title>14247410992</title>
+<polygon fill="none" stroke="black" points="421.91,-779.9 421.91,-829.5 707.11,-829.5 707.11,-779.9 421.91,-779.9"/>
+<text text-anchor="middle" x="480.85" y="-812.9" font-family="Times,serif" font-size="14.00">max_pooling2d_6</text>
+<polyline fill="none" stroke="black" points="421.91,-804.7 539.79,-804.7"/>
+<text text-anchor="middle" x="480.85" y="-788.1" font-family="Times,serif" font-size="14.00">MaxPooling2D</text>
+<polyline fill="none" stroke="black" points="539.79,-779.9 539.79,-829.5"/>
+<text text-anchor="middle" x="567.63" y="-812.9" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="539.79,-804.7 595.46,-804.7"/>
+<text text-anchor="middle" x="567.63" y="-788.1" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="595.46,-779.9 595.46,-829.5"/>
+<text text-anchor="middle" x="651.28" y="-812.9" font-family="Times,serif" font-size="14.00">(None, 2, 2, 256)</text>
+<polyline fill="none" stroke="black" points="595.46,-804.7 707.11,-804.7"/>
+<text text-anchor="middle" x="651.28" y="-788.1" font-family="Times,serif" font-size="14.00">(None, 1, 1, 256)</text>
+</g>
+<!-- 14249660032&#45;&gt;14247410992 -->
+<g id="edge13" class="edge">
+<title>14249660032-&gt;14247410992</title>
+<path fill="none" stroke="black" d="M562.36,-866.28C562.64,-858.42 562.95,-849.52 563.26,-841.01"/>
+<polygon fill="black" stroke="black" points="566.74,-841.41 563.6,-831.29 559.75,-841.16 566.74,-841.41"/>
+</g>
+<!-- 14249650016 -->
+<g id="node15" class="node">
+<title>14249650016</title>
+<polygon fill="none" stroke="black" points="795.91,-779.9 795.91,-829.5 1081.11,-829.5 1081.11,-779.9 795.91,-779.9"/>
+<text text-anchor="middle" x="854.85" y="-812.9" font-family="Times,serif" font-size="14.00">max_pooling2d_7</text>
+<polyline fill="none" stroke="black" points="795.91,-804.7 913.79,-804.7"/>
+<text text-anchor="middle" x="854.85" y="-788.1" font-family="Times,serif" font-size="14.00">MaxPooling2D</text>
+<polyline fill="none" stroke="black" points="913.79,-779.9 913.79,-829.5"/>
+<text text-anchor="middle" x="941.63" y="-812.9" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="913.79,-804.7 969.46,-804.7"/>
+<text text-anchor="middle" x="941.63" y="-788.1" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="969.46,-779.9 969.46,-829.5"/>
+<text text-anchor="middle" x="1025.28" y="-812.9" font-family="Times,serif" font-size="14.00">(None, 2, 2, 256)</text>
+<polyline fill="none" stroke="black" points="969.46,-804.7 1081.11,-804.7"/>
+<text text-anchor="middle" x="1025.28" y="-788.1" font-family="Times,serif" font-size="14.00">(None, 1, 1, 256)</text>
+</g>
+<!-- 14244490736&#45;&gt;14249650016 -->
+<g id="edge14" class="edge">
+<title>14244490736-&gt;14249650016</title>
+<path fill="none" stroke="black" d="M938.51,-866.28C938.51,-858.42 938.51,-849.52 938.51,-841.01"/>
+<polygon fill="black" stroke="black" points="942.01,-841.29 938.51,-831.29 935.01,-841.29 942.01,-841.29"/>
+</g>
+<!-- 14359536208 -->
+<g id="node16" class="node">
+<title>14359536208</title>
+<polygon fill="none" stroke="black" points="1170.91,-779.9 1170.91,-829.5 1456.11,-829.5 1456.11,-779.9 1170.91,-779.9"/>
+<text text-anchor="middle" x="1229.85" y="-812.9" font-family="Times,serif" font-size="14.00">max_pooling2d_8</text>
+<polyline fill="none" stroke="black" points="1170.91,-804.7 1288.79,-804.7"/>
+<text text-anchor="middle" x="1229.85" y="-788.1" font-family="Times,serif" font-size="14.00">MaxPooling2D</text>
+<polyline fill="none" stroke="black" points="1288.79,-779.9 1288.79,-829.5"/>
+<text text-anchor="middle" x="1316.63" y="-812.9" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="1288.79,-804.7 1344.46,-804.7"/>
+<text text-anchor="middle" x="1316.63" y="-788.1" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1344.46,-779.9 1344.46,-829.5"/>
+<text text-anchor="middle" x="1400.28" y="-812.9" font-family="Times,serif" font-size="14.00">(None, 2, 2, 256)</text>
+<polyline fill="none" stroke="black" points="1344.46,-804.7 1456.11,-804.7"/>
+<text text-anchor="middle" x="1400.28" y="-788.1" font-family="Times,serif" font-size="14.00">(None, 1, 1, 256)</text>
+</g>
+<!-- 14352526928&#45;&gt;14359536208 -->
+<g id="edge15" class="edge">
+<title>14352526928-&gt;14359536208</title>
+<path fill="none" stroke="black" d="M1314.94,-866.28C1314.76,-858.42 1314.54,-849.52 1314.34,-841.01"/>
+<polygon fill="black" stroke="black" points="1317.85,-841.2 1314.11,-831.29 1310.85,-841.37 1317.85,-841.2"/>
+</g>
+<!-- 14656114016 -->
+<g id="node17" class="node">
+<title>14656114016</title>
+<polygon fill="none" stroke="black" points="1545.91,-779.9 1545.91,-829.5 1831.11,-829.5 1831.11,-779.9 1545.91,-779.9"/>
+<text text-anchor="middle" x="1604.85" y="-812.9" font-family="Times,serif" font-size="14.00">max_pooling2d_9</text>
+<polyline fill="none" stroke="black" points="1545.91,-804.7 1663.79,-804.7"/>
+<text text-anchor="middle" x="1604.85" y="-788.1" font-family="Times,serif" font-size="14.00">MaxPooling2D</text>
+<polyline fill="none" stroke="black" points="1663.79,-779.9 1663.79,-829.5"/>
+<text text-anchor="middle" x="1691.63" y="-812.9" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="1663.79,-804.7 1719.46,-804.7"/>
+<text text-anchor="middle" x="1691.63" y="-788.1" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1719.46,-779.9 1719.46,-829.5"/>
+<text text-anchor="middle" x="1775.28" y="-812.9" font-family="Times,serif" font-size="14.00">(None, 2, 2, 256)</text>
+<polyline fill="none" stroke="black" points="1719.46,-804.7 1831.11,-804.7"/>
+<text text-anchor="middle" x="1775.28" y="-788.1" font-family="Times,serif" font-size="14.00">(None, 1, 1, 256)</text>
+</g>
+<!-- 14656303984&#45;&gt;14656114016 -->
+<g id="edge16" class="edge">
+<title>14656303984-&gt;14656114016</title>
+<path fill="none" stroke="black" d="M1692.09,-866.28C1691.62,-858.42 1691.1,-849.52 1690.6,-841.01"/>
+<polygon fill="black" stroke="black" points="1694.11,-841.06 1690.02,-831.29 1687.12,-841.48 1694.11,-841.06"/>
+</g>
+<!-- 14231480736 -->
+<g id="node18" class="node">
+<title>14231480736</title>
+<polygon fill="none" stroke="black" points="30.21,-693.3 30.21,-742.9 376.81,-742.9 376.81,-693.3 30.21,-693.3"/>
+<text text-anchor="middle" x="119.85" y="-726.3" font-family="Times,serif" font-size="14.00">global_average_pooling2d_5</text>
+<polyline fill="none" stroke="black" points="30.21,-718.1 209.5,-718.1"/>
+<text text-anchor="middle" x="119.85" y="-701.5" font-family="Times,serif" font-size="14.00">GlobalAveragePooling2D</text>
+<polyline fill="none" stroke="black" points="209.5,-693.3 209.5,-742.9"/>
+<text text-anchor="middle" x="237.33" y="-726.3" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="209.5,-718.1 265.16,-718.1"/>
+<text text-anchor="middle" x="237.33" y="-701.5" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="265.16,-693.3 265.16,-742.9"/>
+<text text-anchor="middle" x="320.99" y="-726.3" font-family="Times,serif" font-size="14.00">(None, 1, 1, 256)</text>
+<polyline fill="none" stroke="black" points="265.16,-718.1 376.81,-718.1"/>
+<text text-anchor="middle" x="320.99" y="-701.5" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14231495776&#45;&gt;14231480736 -->
+<g id="edge17" class="edge">
+<title>14231495776-&gt;14231480736</title>
+<path fill="none" stroke="black" d="M202.08,-779.68C202.26,-771.82 202.47,-762.92 202.67,-754.41"/>
+<polygon fill="black" stroke="black" points="206.17,-754.77 202.9,-744.69 199.17,-754.6 206.17,-754.77"/>
+</g>
+<!-- 14250074176 -->
+<g id="node19" class="node">
+<title>14250074176</title>
+<polygon fill="none" stroke="black" points="398.21,-693.3 398.21,-742.9 744.81,-742.9 744.81,-693.3 398.21,-693.3"/>
+<text text-anchor="middle" x="487.85" y="-726.3" font-family="Times,serif" font-size="14.00">global_average_pooling2d_6</text>
+<polyline fill="none" stroke="black" points="398.21,-718.1 577.5,-718.1"/>
+<text text-anchor="middle" x="487.85" y="-701.5" font-family="Times,serif" font-size="14.00">GlobalAveragePooling2D</text>
+<polyline fill="none" stroke="black" points="577.5,-693.3 577.5,-742.9"/>
+<text text-anchor="middle" x="605.33" y="-726.3" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="577.5,-718.1 633.16,-718.1"/>
+<text text-anchor="middle" x="605.33" y="-701.5" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="633.16,-693.3 633.16,-742.9"/>
+<text text-anchor="middle" x="688.99" y="-726.3" font-family="Times,serif" font-size="14.00">(None, 1, 1, 256)</text>
+<polyline fill="none" stroke="black" points="633.16,-718.1 744.81,-718.1"/>
+<text text-anchor="middle" x="688.99" y="-701.5" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14247410992&#45;&gt;14250074176 -->
+<g id="edge18" class="edge">
+<title>14247410992-&gt;14250074176</title>
+<path fill="none" stroke="black" d="M566.5,-779.68C567.15,-771.82 567.88,-762.92 568.59,-754.41"/>
+<polygon fill="black" stroke="black" points="572.06,-754.94 569.39,-744.69 565.08,-754.36 572.06,-754.94"/>
+</g>
+<!-- 14333962272 -->
+<g id="node20" class="node">
+<title>14333962272</title>
+<polygon fill="none" stroke="black" points="765.21,-693.3 765.21,-742.9 1111.81,-742.9 1111.81,-693.3 765.21,-693.3"/>
+<text text-anchor="middle" x="854.85" y="-726.3" font-family="Times,serif" font-size="14.00">global_average_pooling2d_7</text>
+<polyline fill="none" stroke="black" points="765.21,-718.1 944.5,-718.1"/>
+<text text-anchor="middle" x="854.85" y="-701.5" font-family="Times,serif" font-size="14.00">GlobalAveragePooling2D</text>
+<polyline fill="none" stroke="black" points="944.5,-693.3 944.5,-742.9"/>
+<text text-anchor="middle" x="972.33" y="-726.3" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="944.5,-718.1 1000.16,-718.1"/>
+<text text-anchor="middle" x="972.33" y="-701.5" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1000.16,-693.3 1000.16,-742.9"/>
+<text text-anchor="middle" x="1055.99" y="-726.3" font-family="Times,serif" font-size="14.00">(None, 1, 1, 256)</text>
+<polyline fill="none" stroke="black" points="1000.16,-718.1 1111.81,-718.1"/>
+<text text-anchor="middle" x="1055.99" y="-701.5" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14249650016&#45;&gt;14333962272 -->
+<g id="edge19" class="edge">
+<title>14249650016-&gt;14333962272</title>
+<path fill="none" stroke="black" d="M938.51,-779.68C938.51,-771.82 938.51,-762.92 938.51,-754.41"/>
+<polygon fill="black" stroke="black" points="942.01,-754.69 938.51,-744.69 935.01,-754.69 942.01,-754.69"/>
+</g>
+<!-- 14359993792 -->
+<g id="node21" class="node">
+<title>14359993792</title>
+<polygon fill="none" stroke="black" points="1137.21,-693.3 1137.21,-742.9 1483.81,-742.9 1483.81,-693.3 1137.21,-693.3"/>
+<text text-anchor="middle" x="1226.85" y="-726.3" font-family="Times,serif" font-size="14.00">global_average_pooling2d_8</text>
+<polyline fill="none" stroke="black" points="1137.21,-718.1 1316.5,-718.1"/>
+<text text-anchor="middle" x="1226.85" y="-701.5" font-family="Times,serif" font-size="14.00">GlobalAveragePooling2D</text>
+<polyline fill="none" stroke="black" points="1316.5,-693.3 1316.5,-742.9"/>
+<text text-anchor="middle" x="1344.33" y="-726.3" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="1316.5,-718.1 1372.16,-718.1"/>
+<text text-anchor="middle" x="1344.33" y="-701.5" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1372.16,-693.3 1372.16,-742.9"/>
+<text text-anchor="middle" x="1427.99" y="-726.3" font-family="Times,serif" font-size="14.00">(None, 1, 1, 256)</text>
+<polyline fill="none" stroke="black" points="1372.16,-718.1 1483.81,-718.1"/>
+<text text-anchor="middle" x="1427.99" y="-701.5" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14359536208&#45;&gt;14359993792 -->
+<g id="edge20" class="edge">
+<title>14359536208-&gt;14359993792</title>
+<path fill="none" stroke="black" d="M1312.66,-779.68C1312.38,-771.82 1312.06,-762.92 1311.76,-754.41"/>
+<polygon fill="black" stroke="black" points="1315.27,-754.56 1311.42,-744.69 1308.27,-754.81 1315.27,-754.56"/>
+</g>
+<!-- 14651563024 -->
+<g id="node22" class="node">
+<title>14651563024</title>
+<polygon fill="none" stroke="black" points="1512.21,-693.3 1512.21,-742.9 1858.81,-742.9 1858.81,-693.3 1512.21,-693.3"/>
+<text text-anchor="middle" x="1601.85" y="-726.3" font-family="Times,serif" font-size="14.00">global_average_pooling2d_9</text>
+<polyline fill="none" stroke="black" points="1512.21,-718.1 1691.5,-718.1"/>
+<text text-anchor="middle" x="1601.85" y="-701.5" font-family="Times,serif" font-size="14.00">GlobalAveragePooling2D</text>
+<polyline fill="none" stroke="black" points="1691.5,-693.3 1691.5,-742.9"/>
+<text text-anchor="middle" x="1719.33" y="-726.3" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="1691.5,-718.1 1747.16,-718.1"/>
+<text text-anchor="middle" x="1719.33" y="-701.5" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1747.16,-693.3 1747.16,-742.9"/>
+<text text-anchor="middle" x="1802.99" y="-726.3" font-family="Times,serif" font-size="14.00">(None, 1, 1, 256)</text>
+<polyline fill="none" stroke="black" points="1747.16,-718.1 1858.81,-718.1"/>
+<text text-anchor="middle" x="1802.99" y="-701.5" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14656114016&#45;&gt;14651563024 -->
+<g id="edge21" class="edge">
+<title>14656114016-&gt;14651563024</title>
+<path fill="none" stroke="black" d="M1687.66,-779.68C1687.38,-771.82 1687.06,-762.92 1686.76,-754.41"/>
+<polygon fill="black" stroke="black" points="1690.27,-754.56 1686.42,-744.69 1683.27,-754.81 1690.27,-754.56"/>
+</g>
+<!-- 14202663984 -->
+<g id="node23" class="node">
+<title>14202663984</title>
+<polygon fill="none" stroke="black" points="202.07,-606.7 202.07,-656.3 414.94,-656.3 414.94,-606.7 202.07,-606.7"/>
+<text text-anchor="middle" x="238.85" y="-639.7" font-family="Times,serif" font-size="14.00">dropout_6</text>
+<polyline fill="none" stroke="black" points="202.07,-631.5 275.63,-631.5"/>
+<text text-anchor="middle" x="238.85" y="-614.9" font-family="Times,serif" font-size="14.00">Dropout</text>
+<polyline fill="none" stroke="black" points="275.63,-606.7 275.63,-656.3"/>
+<text text-anchor="middle" x="303.46" y="-639.7" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="275.63,-631.5 331.29,-631.5"/>
+<text text-anchor="middle" x="303.46" y="-614.9" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="331.29,-606.7 331.29,-656.3"/>
+<text text-anchor="middle" x="373.12" y="-639.7" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+<polyline fill="none" stroke="black" points="331.29,-631.5 414.94,-631.5"/>
+<text text-anchor="middle" x="373.12" y="-614.9" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14231480736&#45;&gt;14202663984 -->
+<g id="edge22" class="edge">
+<title>14231480736-&gt;14202663984</title>
+<path fill="none" stroke="black" d="M233.6,-692.86C244.8,-683.83 257.68,-673.45 269.57,-663.88"/>
+<polygon fill="black" stroke="black" points="271.65,-666.7 277.24,-657.7 267.25,-661.24 271.65,-666.7"/>
+</g>
+<!-- 14233979824 -->
+<g id="node24" class="node">
+<title>14233979824</title>
+<polygon fill="none" stroke="black" points="501.07,-606.7 501.07,-656.3 713.94,-656.3 713.94,-606.7 501.07,-606.7"/>
+<text text-anchor="middle" x="537.85" y="-639.7" font-family="Times,serif" font-size="14.00">dropout_7</text>
+<polyline fill="none" stroke="black" points="501.07,-631.5 574.63,-631.5"/>
+<text text-anchor="middle" x="537.85" y="-614.9" font-family="Times,serif" font-size="14.00">Dropout</text>
+<polyline fill="none" stroke="black" points="574.63,-606.7 574.63,-656.3"/>
+<text text-anchor="middle" x="602.46" y="-639.7" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="574.63,-631.5 630.29,-631.5"/>
+<text text-anchor="middle" x="602.46" y="-614.9" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="630.29,-606.7 630.29,-656.3"/>
+<text text-anchor="middle" x="672.12" y="-639.7" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+<polyline fill="none" stroke="black" points="630.29,-631.5 713.94,-631.5"/>
+<text text-anchor="middle" x="672.12" y="-614.9" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14250074176&#45;&gt;14233979824 -->
+<g id="edge23" class="edge">
+<title>14250074176-&gt;14233979824</title>
+<path fill="none" stroke="black" d="M581.73,-693.08C585.19,-684.96 589.12,-675.71 592.85,-666.94"/>
+<polygon fill="black" stroke="black" points="595.98,-668.54 596.67,-657.97 589.53,-665.8 595.98,-668.54"/>
+</g>
+<!-- 14244717712 -->
+<g id="node25" class="node">
+<title>14244717712</title>
+<polygon fill="none" stroke="black" points="832.07,-606.7 832.07,-656.3 1044.94,-656.3 1044.94,-606.7 832.07,-606.7"/>
+<text text-anchor="middle" x="868.85" y="-639.7" font-family="Times,serif" font-size="14.00">dropout_8</text>
+<polyline fill="none" stroke="black" points="832.07,-631.5 905.63,-631.5"/>
+<text text-anchor="middle" x="868.85" y="-614.9" font-family="Times,serif" font-size="14.00">Dropout</text>
+<polyline fill="none" stroke="black" points="905.63,-606.7 905.63,-656.3"/>
+<text text-anchor="middle" x="933.46" y="-639.7" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="905.63,-631.5 961.29,-631.5"/>
+<text text-anchor="middle" x="933.46" y="-614.9" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="961.29,-606.7 961.29,-656.3"/>
+<text text-anchor="middle" x="1003.12" y="-639.7" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+<polyline fill="none" stroke="black" points="961.29,-631.5 1044.94,-631.5"/>
+<text text-anchor="middle" x="1003.12" y="-614.9" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14333962272&#45;&gt;14244717712 -->
+<g id="edge24" class="edge">
+<title>14333962272-&gt;14244717712</title>
+<path fill="none" stroke="black" d="M938.51,-693.08C938.51,-685.22 938.51,-676.32 938.51,-667.81"/>
+<polygon fill="black" stroke="black" points="942.01,-668.09 938.51,-658.09 935.01,-668.09 942.01,-668.09"/>
+</g>
+<!-- 14333963568 -->
+<g id="node26" class="node">
+<title>14333963568</title>
+<polygon fill="none" stroke="black" points="1133.07,-606.7 1133.07,-656.3 1345.94,-656.3 1345.94,-606.7 1133.07,-606.7"/>
+<text text-anchor="middle" x="1169.85" y="-639.7" font-family="Times,serif" font-size="14.00">dropout_9</text>
+<polyline fill="none" stroke="black" points="1133.07,-631.5 1206.63,-631.5"/>
+<text text-anchor="middle" x="1169.85" y="-614.9" font-family="Times,serif" font-size="14.00">Dropout</text>
+<polyline fill="none" stroke="black" points="1206.63,-606.7 1206.63,-656.3"/>
+<text text-anchor="middle" x="1234.46" y="-639.7" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="1206.63,-631.5 1262.29,-631.5"/>
+<text text-anchor="middle" x="1234.46" y="-614.9" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1262.29,-606.7 1262.29,-656.3"/>
+<text text-anchor="middle" x="1304.12" y="-639.7" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+<polyline fill="none" stroke="black" points="1262.29,-631.5 1345.94,-631.5"/>
+<text text-anchor="middle" x="1304.12" y="-614.9" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14359993792&#45;&gt;14333963568 -->
+<g id="edge25" class="edge">
+<title>14359993792-&gt;14333963568</title>
+<path fill="none" stroke="black" d="M1290.35,-693.08C1283.08,-684.42 1274.75,-674.49 1266.96,-665.21"/>
+<polygon fill="black" stroke="black" points="1269.8,-663.15 1260.69,-657.74 1264.44,-667.65 1269.8,-663.15"/>
+</g>
+<!-- 14359774544 -->
+<g id="node27" class="node">
+<title>14359774544</title>
+<polygon fill="none" stroke="black" points="1469.57,-606.7 1469.57,-656.3 1689.44,-656.3 1689.44,-606.7 1469.57,-606.7"/>
+<text text-anchor="middle" x="1509.85" y="-639.7" font-family="Times,serif" font-size="14.00">dropout_10</text>
+<polyline fill="none" stroke="black" points="1469.57,-631.5 1550.13,-631.5"/>
+<text text-anchor="middle" x="1509.85" y="-614.9" font-family="Times,serif" font-size="14.00">Dropout</text>
+<polyline fill="none" stroke="black" points="1550.13,-606.7 1550.13,-656.3"/>
+<text text-anchor="middle" x="1577.96" y="-639.7" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="1550.13,-631.5 1605.79,-631.5"/>
+<text text-anchor="middle" x="1577.96" y="-614.9" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1605.79,-606.7 1605.79,-656.3"/>
+<text text-anchor="middle" x="1647.62" y="-639.7" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+<polyline fill="none" stroke="black" points="1605.79,-631.5 1689.44,-631.5"/>
+<text text-anchor="middle" x="1647.62" y="-614.9" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14651563024&#45;&gt;14359774544 -->
+<g id="edge26" class="edge">
+<title>14651563024-&gt;14359774544</title>
+<path fill="none" stroke="black" d="M1655.13,-692.86C1643.82,-683.83 1630.82,-673.45 1618.82,-663.88"/>
+<polygon fill="black" stroke="black" points="1621.07,-661.19 1611.07,-657.69 1616.7,-666.66 1621.07,-661.19"/>
+</g>
+<!-- 14226162880 -->
+<g id="node28" class="node">
+<title>14226162880</title>
+<polygon fill="none" stroke="black" points="315.97,-520.1 315.97,-569.7 521.05,-569.7 521.05,-520.1 315.97,-520.1"/>
+<text text-anchor="middle" x="348.85" y="-553.1" font-family="Times,serif" font-size="14.00">flatten_5</text>
+<polyline fill="none" stroke="black" points="315.97,-544.9 381.73,-544.9"/>
+<text text-anchor="middle" x="348.85" y="-528.3" font-family="Times,serif" font-size="14.00">Flatten</text>
+<polyline fill="none" stroke="black" points="381.73,-520.1 381.73,-569.7"/>
+<text text-anchor="middle" x="409.56" y="-553.1" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="381.73,-544.9 437.4,-544.9"/>
+<text text-anchor="middle" x="409.56" y="-528.3" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="437.4,-520.1 437.4,-569.7"/>
+<text text-anchor="middle" x="479.22" y="-553.1" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+<polyline fill="none" stroke="black" points="437.4,-544.9 521.05,-544.9"/>
+<text text-anchor="middle" x="479.22" y="-528.3" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14202663984&#45;&gt;14226162880 -->
+<g id="edge27" class="edge">
+<title>14202663984-&gt;14226162880</title>
+<path fill="none" stroke="black" d="M340.03,-606.26C351.88,-597.14 365.53,-586.65 378.08,-577"/>
+<polygon fill="black" stroke="black" points="379.99,-579.94 385.78,-571.07 375.72,-574.39 379.99,-579.94"/>
+</g>
+<!-- 14308948720 -->
+<g id="node29" class="node">
+<title>14308948720</title>
+<polygon fill="none" stroke="black" points="576.97,-520.1 576.97,-569.7 782.05,-569.7 782.05,-520.1 576.97,-520.1"/>
+<text text-anchor="middle" x="609.85" y="-553.1" font-family="Times,serif" font-size="14.00">flatten_6</text>
+<polyline fill="none" stroke="black" points="576.97,-544.9 642.73,-544.9"/>
+<text text-anchor="middle" x="609.85" y="-528.3" font-family="Times,serif" font-size="14.00">Flatten</text>
+<polyline fill="none" stroke="black" points="642.73,-520.1 642.73,-569.7"/>
+<text text-anchor="middle" x="670.56" y="-553.1" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="642.73,-544.9 698.4,-544.9"/>
+<text text-anchor="middle" x="670.56" y="-528.3" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="698.4,-520.1 698.4,-569.7"/>
+<text text-anchor="middle" x="740.22" y="-553.1" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+<polyline fill="none" stroke="black" points="698.4,-544.9 782.05,-544.9"/>
+<text text-anchor="middle" x="740.22" y="-528.3" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14233979824&#45;&gt;14308948720 -->
+<g id="edge28" class="edge">
+<title>14233979824-&gt;14308948720</title>
+<path fill="none" stroke="black" d="M627.95,-606.48C635.32,-597.82 643.77,-587.89 651.67,-578.61"/>
+<polygon fill="black" stroke="black" points="654.22,-581.01 658.04,-571.13 648.89,-576.48 654.22,-581.01"/>
+</g>
+<!-- 14309176224 -->
+<g id="node30" class="node">
+<title>14309176224</title>
+<polygon fill="none" stroke="black" points="835.97,-520.1 835.97,-569.7 1041.05,-569.7 1041.05,-520.1 835.97,-520.1"/>
+<text text-anchor="middle" x="868.85" y="-553.1" font-family="Times,serif" font-size="14.00">flatten_7</text>
+<polyline fill="none" stroke="black" points="835.97,-544.9 901.73,-544.9"/>
+<text text-anchor="middle" x="868.85" y="-528.3" font-family="Times,serif" font-size="14.00">Flatten</text>
+<polyline fill="none" stroke="black" points="901.73,-520.1 901.73,-569.7"/>
+<text text-anchor="middle" x="929.56" y="-553.1" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="901.73,-544.9 957.4,-544.9"/>
+<text text-anchor="middle" x="929.56" y="-528.3" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="957.4,-520.1 957.4,-569.7"/>
+<text text-anchor="middle" x="999.22" y="-553.1" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+<polyline fill="none" stroke="black" points="957.4,-544.9 1041.05,-544.9"/>
+<text text-anchor="middle" x="999.22" y="-528.3" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14244717712&#45;&gt;14309176224 -->
+<g id="edge29" class="edge">
+<title>14244717712-&gt;14309176224</title>
+<path fill="none" stroke="black" d="M938.51,-606.48C938.51,-598.62 938.51,-589.72 938.51,-581.21"/>
+<polygon fill="black" stroke="black" points="942.01,-581.49 938.51,-571.49 935.01,-581.49 942.01,-581.49"/>
+</g>
+<!-- 14353690784 -->
+<g id="node31" class="node">
+<title>14353690784</title>
+<polygon fill="none" stroke="black" points="1097.97,-520.1 1097.97,-569.7 1303.05,-569.7 1303.05,-520.1 1097.97,-520.1"/>
+<text text-anchor="middle" x="1130.85" y="-553.1" font-family="Times,serif" font-size="14.00">flatten_8</text>
+<polyline fill="none" stroke="black" points="1097.97,-544.9 1163.73,-544.9"/>
+<text text-anchor="middle" x="1130.85" y="-528.3" font-family="Times,serif" font-size="14.00">Flatten</text>
+<polyline fill="none" stroke="black" points="1163.73,-520.1 1163.73,-569.7"/>
+<text text-anchor="middle" x="1191.56" y="-553.1" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="1163.73,-544.9 1219.4,-544.9"/>
+<text text-anchor="middle" x="1191.56" y="-528.3" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1219.4,-520.1 1219.4,-569.7"/>
+<text text-anchor="middle" x="1261.22" y="-553.1" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+<polyline fill="none" stroke="black" points="1219.4,-544.9 1303.05,-544.9"/>
+<text text-anchor="middle" x="1261.22" y="-528.3" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14333963568&#45;&gt;14353690784 -->
+<g id="edge30" class="edge">
+<title>14333963568-&gt;14353690784</title>
+<path fill="none" stroke="black" d="M1228.44,-606.48C1224.69,-598.36 1220.43,-589.11 1216.39,-580.34"/>
+<polygon fill="black" stroke="black" points="1219.61,-578.97 1212.24,-571.35 1213.25,-581.9 1219.61,-578.97"/>
+</g>
+<!-- 14651487184 -->
+<g id="node32" class="node">
+<title>14651487184</title>
+<polygon fill="none" stroke="black" points="1398.97,-520.1 1398.97,-569.7 1604.05,-569.7 1604.05,-520.1 1398.97,-520.1"/>
+<text text-anchor="middle" x="1431.85" y="-553.1" font-family="Times,serif" font-size="14.00">flatten_9</text>
+<polyline fill="none" stroke="black" points="1398.97,-544.9 1464.73,-544.9"/>
+<text text-anchor="middle" x="1431.85" y="-528.3" font-family="Times,serif" font-size="14.00">Flatten</text>
+<polyline fill="none" stroke="black" points="1464.73,-520.1 1464.73,-569.7"/>
+<text text-anchor="middle" x="1492.56" y="-553.1" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="1464.73,-544.9 1520.4,-544.9"/>
+<text text-anchor="middle" x="1492.56" y="-528.3" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="1520.4,-520.1 1520.4,-569.7"/>
+<text text-anchor="middle" x="1562.22" y="-553.1" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+<polyline fill="none" stroke="black" points="1520.4,-544.9 1604.05,-544.9"/>
+<text text-anchor="middle" x="1562.22" y="-528.3" font-family="Times,serif" font-size="14.00">(None, 256)</text>
+</g>
+<!-- 14359774544&#45;&gt;14651487184 -->
+<g id="edge31" class="edge">
+<title>14359774544-&gt;14651487184</title>
+<path fill="none" stroke="black" d="M1557.37,-606.48C1549.3,-597.73 1540.04,-587.69 1531.4,-578.33"/>
+<polygon fill="black" stroke="black" points="1534.08,-576.07 1524.73,-571.09 1528.94,-580.81 1534.08,-576.07"/>
+</g>
+<!-- 14352162976 -->
+<g id="node33" class="node">
+<title>14352162976</title>
+<polygon fill="none" stroke="black" points="667.23,-433.5 667.23,-483.1 1209.79,-483.1 1209.79,-433.5 667.23,-433.5"/>
+<text text-anchor="middle" x="714.89" y="-466.5" font-family="Times,serif" font-size="14.00">tf.stack_1</text>
+<polyline fill="none" stroke="black" points="667.23,-458.3 762.55,-458.3"/>
+<text text-anchor="middle" x="714.89" y="-441.7" font-family="Times,serif" font-size="14.00">TFOpLambda</text>
+<polyline fill="none" stroke="black" points="762.55,-433.5 762.55,-483.1"/>
+<text text-anchor="middle" x="790.38" y="-466.5" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="762.55,-458.3 818.22,-458.3"/>
+<text text-anchor="middle" x="790.38" y="-441.7" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="818.22,-433.5 818.22,-483.1"/>
+<text text-anchor="middle" x="1014" y="-466.5" font-family="Times,serif" font-size="14.00">[(None, 256), (None, 256), (None, 256), (None, 256), (None, 256)]</text>
+<polyline fill="none" stroke="black" points="818.22,-458.3 1209.79,-458.3"/>
+<text text-anchor="middle" x="1013.54" y="-441.7" font-family="Times,serif" font-size="14.00">(None, 5, 256)</text>
+</g>
+<!-- 14226162880&#45;&gt;14352162976 -->
+<g id="edge32" class="edge">
+<title>14226162880-&gt;14352162976</title>
+<path fill="none" stroke="black" d="M521.51,-527.1C536.92,-524.58 552.63,-522.02 567.51,-519.6 636.46,-508.37 712.62,-495.99 777.91,-485.38"/>
+<polygon fill="black" stroke="black" points="778.32,-488.86 787.63,-483.8 777.2,-481.95 778.32,-488.86"/>
+</g>
+<!-- 14308948720&#45;&gt;14352162976 -->
+<g id="edge33" class="edge">
+<title>14308948720-&gt;14352162976</title>
+<path fill="none" stroke="black" d="M753.73,-519.66C784.89,-509.48 821.3,-497.59 853.52,-487.06"/>
+<polygon fill="black" stroke="black" points="854.42,-490.45 862.84,-484.02 852.25,-483.79 854.42,-490.45"/>
+</g>
+<!-- 14309176224&#45;&gt;14352162976 -->
+<g id="edge34" class="edge">
+<title>14309176224-&gt;14352162976</title>
+<path fill="none" stroke="black" d="M938.51,-519.88C938.51,-512.02 938.51,-503.12 938.51,-494.61"/>
+<polygon fill="black" stroke="black" points="942.01,-494.89 938.51,-484.89 935.01,-494.89 942.01,-494.89"/>
+</g>
+<!-- 14353690784&#45;&gt;14352162976 -->
+<g id="edge35" class="edge">
+<title>14353690784-&gt;14352162976</title>
+<path fill="none" stroke="black" d="M1125.43,-519.66C1093.91,-509.48 1057.08,-497.59 1024.48,-487.06"/>
+<polygon fill="black" stroke="black" points="1025.63,-483.75 1015.04,-484.01 1023.48,-490.42 1025.63,-483.75"/>
+</g>
+<!-- 14651487184&#45;&gt;14352162976 -->
+<g id="edge36" class="edge">
+<title>14651487184-&gt;14352162976</title>
+<path fill="none" stroke="black" d="M1398.57,-528.43C1318.46,-516.39 1205.48,-499.42 1111.53,-485.3"/>
+<polygon fill="black" stroke="black" points="1112.08,-481.84 1101.67,-483.82 1111.04,-488.76 1112.08,-481.84"/>
+</g>
+<!-- 14650288016 -->
+<g id="node34" class="node">
+<title>14650288016</title>
+<polygon fill="none" stroke="black" points="787.36,-346.9 787.36,-396.5 1089.65,-396.5 1089.65,-346.9 787.36,-346.9"/>
+<text text-anchor="middle" x="861.85" y="-379.9" font-family="Times,serif" font-size="14.00">multi_head_attention_1</text>
+<polyline fill="none" stroke="black" points="787.36,-371.7 936.34,-371.7"/>
+<text text-anchor="middle" x="861.85" y="-355.1" font-family="Times,serif" font-size="14.00">MultiHeadAttention</text>
+<polyline fill="none" stroke="black" points="936.34,-346.9 936.34,-396.5"/>
+<text text-anchor="middle" x="964.17" y="-379.9" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="936.34,-371.7 992.01,-371.7"/>
+<text text-anchor="middle" x="964.17" y="-355.1" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="992.01,-346.9 992.01,-396.5"/>
+<text text-anchor="middle" x="1040.83" y="-379.9" font-family="Times,serif" font-size="14.00">(None, 5, 256)</text>
+<polyline fill="none" stroke="black" points="992.01,-371.7 1089.65,-371.7"/>
+<text text-anchor="middle" x="1040.83" y="-355.1" font-family="Times,serif" font-size="14.00">(None, 5, 256)</text>
+</g>
+<!-- 14352162976&#45;&gt;14650288016 -->
+<g id="edge37" class="edge">
+<title>14352162976-&gt;14650288016</title>
+<path fill="none" stroke="black" d="M938.51,-433.28C938.51,-425.42 938.51,-416.52 938.51,-408.01"/>
+<polygon fill="black" stroke="black" points="942.01,-408.29 938.51,-398.29 935.01,-408.29 942.01,-408.29"/>
+</g>
+<!-- 14359540736 -->
+<g id="node35" class="node">
+<title>14359540736</title>
+<polygon fill="none" stroke="black" points="825.47,-260.3 825.47,-309.9 1051.55,-309.9 1051.55,-260.3 825.47,-260.3"/>
+<text text-anchor="middle" x="861.85" y="-293.3" font-family="Times,serif" font-size="14.00">flatten_10</text>
+<polyline fill="none" stroke="black" points="825.47,-285.1 898.23,-285.1"/>
+<text text-anchor="middle" x="861.85" y="-268.5" font-family="Times,serif" font-size="14.00">Flatten</text>
+<polyline fill="none" stroke="black" points="898.23,-260.3 898.23,-309.9"/>
+<text text-anchor="middle" x="926.06" y="-293.3" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="898.23,-285.1 953.9,-285.1"/>
+<text text-anchor="middle" x="926.06" y="-268.5" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="953.9,-260.3 953.9,-309.9"/>
+<text text-anchor="middle" x="1002.72" y="-293.3" font-family="Times,serif" font-size="14.00">(None, 5, 256)</text>
+<polyline fill="none" stroke="black" points="953.9,-285.1 1051.55,-285.1"/>
+<text text-anchor="middle" x="1002.72" y="-268.5" font-family="Times,serif" font-size="14.00">(None, 1280)</text>
+</g>
+<!-- 14650288016&#45;&gt;14359540736 -->
+<g id="edge38" class="edge">
+<title>14650288016-&gt;14359540736</title>
+<path fill="none" stroke="black" d="M938.51,-346.68C938.51,-338.82 938.51,-329.92 938.51,-321.41"/>
+<polygon fill="black" stroke="black" points="942.01,-321.69 938.51,-311.69 935.01,-321.69 942.01,-321.69"/>
+</g>
+<!-- 14651519760 -->
+<g id="node36" class="node">
+<title>14651519760</title>
+<polygon fill="none" stroke="black" points="834.41,-173.7 834.41,-223.3 1042.61,-223.3 1042.61,-173.7 834.41,-173.7"/>
+<text text-anchor="middle" x="865.35" y="-206.7" font-family="Times,serif" font-size="14.00">dense_2</text>
+<polyline fill="none" stroke="black" points="834.41,-198.5 896.29,-198.5"/>
+<text text-anchor="middle" x="865.35" y="-181.9" font-family="Times,serif" font-size="14.00">Dense</text>
+<polyline fill="none" stroke="black" points="896.29,-173.7 896.29,-223.3"/>
+<text text-anchor="middle" x="924.12" y="-206.7" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="896.29,-198.5 951.96,-198.5"/>
+<text text-anchor="middle" x="924.12" y="-181.9" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="951.96,-173.7 951.96,-223.3"/>
+<text text-anchor="middle" x="997.28" y="-206.7" font-family="Times,serif" font-size="14.00">(None, 1280)</text>
+<polyline fill="none" stroke="black" points="951.96,-198.5 1042.61,-198.5"/>
+<text text-anchor="middle" x="997.28" y="-181.9" font-family="Times,serif" font-size="14.00">(None, 512)</text>
+</g>
+<!-- 14359540736&#45;&gt;14651519760 -->
+<g id="edge39" class="edge">
+<title>14359540736-&gt;14651519760</title>
+<path fill="none" stroke="black" d="M938.51,-260.08C938.51,-252.22 938.51,-243.32 938.51,-234.81"/>
+<polygon fill="black" stroke="black" points="942.01,-235.09 938.51,-225.09 935.01,-235.09 942.01,-235.09"/>
+</g>
+<!-- 14646989200 -->
+<g id="node37" class="node">
+<title>14646989200</title>
+<polygon fill="none" stroke="black" points="828.57,-87.1 828.57,-136.7 1048.44,-136.7 1048.44,-87.1 828.57,-87.1"/>
+<text text-anchor="middle" x="868.85" y="-120.1" font-family="Times,serif" font-size="14.00">dropout_11</text>
+<polyline fill="none" stroke="black" points="828.57,-111.9 909.13,-111.9"/>
+<text text-anchor="middle" x="868.85" y="-95.3" font-family="Times,serif" font-size="14.00">Dropout</text>
+<polyline fill="none" stroke="black" points="909.13,-87.1 909.13,-136.7"/>
+<text text-anchor="middle" x="936.96" y="-120.1" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="909.13,-111.9 964.79,-111.9"/>
+<text text-anchor="middle" x="936.96" y="-95.3" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="964.79,-87.1 964.79,-136.7"/>
+<text text-anchor="middle" x="1006.62" y="-120.1" font-family="Times,serif" font-size="14.00">(None, 512)</text>
+<polyline fill="none" stroke="black" points="964.79,-111.9 1048.44,-111.9"/>
+<text text-anchor="middle" x="1006.62" y="-95.3" font-family="Times,serif" font-size="14.00">(None, 512)</text>
+</g>
+<!-- 14651519760&#45;&gt;14646989200 -->
+<g id="edge40" class="edge">
+<title>14651519760-&gt;14646989200</title>
+<path fill="none" stroke="black" d="M938.51,-173.48C938.51,-165.62 938.51,-156.72 938.51,-148.21"/>
+<polygon fill="black" stroke="black" points="942.01,-148.49 938.51,-138.49 935.01,-148.49 942.01,-148.49"/>
+</g>
+<!-- 14673313744 -->
+<g id="node38" class="node">
+<title>14673313744</title>
+<polygon fill="none" stroke="black" points="837.91,-0.5 837.91,-50.1 1039.11,-50.1 1039.11,-0.5 837.91,-0.5"/>
+<text text-anchor="middle" x="868.85" y="-33.5" font-family="Times,serif" font-size="14.00">dense_3</text>
+<polyline fill="none" stroke="black" points="837.91,-25.3 899.79,-25.3"/>
+<text text-anchor="middle" x="868.85" y="-8.7" font-family="Times,serif" font-size="14.00">Dense</text>
+<polyline fill="none" stroke="black" points="899.79,-0.5 899.79,-50.1"/>
+<text text-anchor="middle" x="927.62" y="-33.5" font-family="Times,serif" font-size="14.00">input:</text>
+<polyline fill="none" stroke="black" points="899.79,-25.3 955.46,-25.3"/>
+<text text-anchor="middle" x="927.62" y="-8.7" font-family="Times,serif" font-size="14.00">output:</text>
+<polyline fill="none" stroke="black" points="955.46,-0.5 955.46,-50.1"/>
+<text text-anchor="middle" x="997.28" y="-33.5" font-family="Times,serif" font-size="14.00">(None, 512)</text>
+<polyline fill="none" stroke="black" points="955.46,-25.3 1039.11,-25.3"/>
+<text text-anchor="middle" x="997.28" y="-8.7" font-family="Times,serif" font-size="14.00">(None, 4)</text>
+</g>
+<!-- 14646989200&#45;&gt;14673313744 -->
+<g id="edge41" class="edge">
+<title>14646989200-&gt;14673313744</title>
+<path fill="none" stroke="black" d="M938.51,-86.88C938.51,-79.02 938.51,-70.12 938.51,-61.61"/>
+<polygon fill="black" stroke="black" points="942.01,-61.89 938.51,-51.89 935.01,-61.89 942.01,-61.89"/>
+</g>
+</g>
+</svg>
