@@ -21,10 +21,10 @@
   "ablation": false,
   "ablation-conf": {
     "max_epoch": 100,
-    "ablation_study_size": 120,
-    "batch_size": 6,
+    "ablation_study_size": 130,
+    "batch_size": 13,
     "image_size": 224,
-    "volume_depth": 31
+    "volume_depth": 5
   },
   "trainable": false,
   "devices": [
@@ -60,13 +60,13 @@
   "default_transforms": {
     "augmentation": false,
     "filter": true,
-    "normalize": true,
+    "normalize": false,
     "standarized": true
   },
   "train_transforms": {
     "augmentation": true,
     "filter": true,
-    "normalize": true,
+    "normalize": false,
     "standarized": true
   }
 }
