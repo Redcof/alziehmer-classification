@@ -1,15 +1,18 @@
-
 ratio = (0.7, 0.2, 0.1)
 batch_size = 13
 train_data, validation_data, test_data = get_oasis_dataset(batch_size, ratio)
 
+imagenet_mean = [0.485, 0.456, 0.406]
+imagenet_std = [0.229, 0.224, 0.225]
+
 train_data = RandomVerticalFlip(train_data)
 train_data = RandomHorizontalFlip(train_data)
 train_data = bilateral_filter(train_data)
-train_data = Normalize(train_data, mean=0, std=1)
+train_data = Standardize(train_data, mean=imagenet_mean, std=imagenet_std)
 
-validation_data = Normalize(validation_data, mean=0, std=1)
-test_data = Normalize(test_data, mean=0, std=1)
+validation_data = Standardize(validation_data, mean=imagenet_mean, std=imagenet_std)
+test_data = Standardize(test_data, mean=imagenet_mean, std=imagenet_std)
+
 
 def create_multiview_model():
     volume_depth = 61
