@@ -3,7 +3,7 @@
 set -e
 set -x
 
-pip install --upgrade pip
+python -m pip install --upgrade pip
 
 # Define a function with parameters
 resolve_dependencies() {
