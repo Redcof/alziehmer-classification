@@ -4,6 +4,8 @@
 import time
 import matplotlib.pyplot as plt
 
+from kaggle_download import download_kaggle_dataset
+
 plt.rcParams["font.family"] = "serif"
 import psutil
 from multiprocessing import Process, Lock, Manager
@@ -57,8 +59,8 @@ def loop_log_system_usage(
         lock_worker.acquire()
         num_worker.value += 1
         lock_worker.release()
-
-        timest = datetime.strptime(str(datetime.now()), "%Y-%m-%d %H:%M:%S.%f")
+        
+        timest = datetime.strptime(str(datetime.now()), "%Y-%m-%d %H:%M:%S")
         child_proc = Process(
             target=log_system_usage,
             args=(timest, artifact_root, num_worker, lock_csv, lock_worker),
@@ -76,22 +78,24 @@ if __name__ == "__main__":
     stop_signal = manager.Value("stop_signal", False)
     try:
         import gc
-
+        
         gc.collect()
-
+        
         import io
         import math
         import os
         import sys
-
-        import cv2
+        
+        import cv2, json, pathlib
         import numpy as np
         import pandas as pd
         import torchvision.transforms
-
+        
+        
         def is_running_in_colab():
             return "google.colab" in sys.modules
-
+        
+        
         def is_docker():
             path = "/proc/self/cgroup"
             if os.path.exists(path):
@@ -100,135 +104,53 @@ if __name__ == "__main__":
                         if "docker" in line:
                             return True
             return False
-
+        
+        
         if is_docker():
-            log_root = (
-                "/mnt/oasis"  # You must mount a physical directory to '/mnt/osais'
-            )
+            log_root = "/mnt/oasis"  # You must mount a physical directory to '/mnt/osais
         else:
-            log_root = "."
-
+            log_root = os.path.abspath(".")
+        
         assert os.path.exists(log_root), (
             "You must mount a physical directory to '/mnt/oasis'"
         )
         cache_root = log_root
-        datasetdir = f"{log_root}/imagesoasis/Data"  # You must mount # 'D:/m.../OASIS_data/Data' to '/mnt/osais/imagesoasis/Data'
-        dataset_name = "tflogs_mvcnn"
-
-        def download_oasis():
-            global log_root
-            msg = "Please set KAGGLE_USERNAME, KAGGLE_KEY"
-            assert os.environ["KAGGLE_USERNAME"], msg
-            assert os.environ["KAGGLE_KEY"], msg
-
-            # Download the dataset
-            # creating kaggle.json
-            import json
-
-            import opendatasets as od
-
-            with open("./kaggle.json", "w") as outfile:
-                logger.debug("Creating kaggle.json file")
-                data = dict(
-                    username=os.environ["KAGGLE_USERNAME"], key=os.environ["KAGGLE_KEY"]
-                )
-                json.dump(data, outfile)
-
-            # Replace with the actual Kaggle dataset URL
-            logger.info("Downloading OASIS dataset...")
-            dataset_url = "https://www.kaggle.com/datasets/ninadaithal/imagesoasis"
-            od.download(dataset_url, data_dir=f"{log_root}/imagesoasis")
-
-            with open("./kaggle.json", "w") as outfile:
-                logger.debug("Wiping out the kaggle.json file")
-
-        if not os.path.exists(datasetdir):
-            download_oasis()
-
-        # Dataset Selection
-        # DO NOT TOUCH - END ===================================
-        assert os.path.exists(datasetdir), f"Dataset path is incorrect {datasetdir}"
-        logger.info(f"{datasetdir}, {dataset_name}")
-
-        # # Test Image selection
-
-        TEST_IMG_PATH, TEST_IMG_LABEL = (
-            f"{datasetdir}/Mild Dementia/OAS1_0028_MR1_mpr-1_127.jpg",
-            "Mild_Dementia",
-        )
-        import os
-
-        assert os.path.exists(TEST_IMG_PATH), (
-            f"Test image path is incorrect {TEST_IMG_PATH}"
-        )
-        logger.info(f"{TEST_IMG_PATH}, {TEST_IMG_LABEL}")
-
-        import json
-        import os
-
-        def get_experiment_details(dataset, model, ts):
-            exp_asset_dir = f"{log_root}/results/{dataset}/{model}/{ts}"
-            assert os.path.exists(exp_asset_dir), (
-                f"Experiment does not exist '{exp_asset_dir}'"
-            )
-            checkpoint_model_dir = None
-            with open(exp_asset_dir + "/currentepoch.txt") as fp:
-                last_epoch = int(fp.read().strip())
-                checkpoint_model_dir = (
-                    exp_asset_dir + f"/models/epoch=%02d{model_ext}" % last_epoch
-                )
-                assert os.path.exists(checkpoint_model_dir), (
-                    f"Unable to find the last checkpoint file {checkpoint_model_dir}"
-                )
-            best_model_dir = exp_asset_dir + f"/models/best-model{model_ext}"
-            if not os.path.exists(best_model_dir):
-                best_model_dir = None
-
-            best_model_info = None
-            if os.path.exists(exp_asset_dir + "/bestvalue.json"):
-                with open(exp_asset_dir + "/bestvalue.json") as fp:
-                    best_model_info = json.load(fp)
-
-            return dict(
-                last_epoch=last_epoch,
-                best_checkpoint=best_model_dir,
-                last_checkpoint=checkpoint_model_dir,
-                best_model_info=best_model_info,
-                project_dir=exp_asset_dir,
-            )
-
-        # # <font color='red'>Hyperparameters
+        datasetdir = str(pathlib.Path(log_root) / "imagesoasis" / "Data")
+        
+        # <font color='red'>Hyperparameters
+        
+        # ================================= JSON READ START =================================
+        # ==================================================================================
         hparams_json = f"{log_root}/hparams.json"
         assert os.path.exists(hparams_json), f"Unable to find {hparams_json}"
         import json
-
+        
+        
         def infinity_decoder(obj):
             if obj == "inf":
                 return float("inf")
             elif obj == "-inf":
                 return float("-inf")
             return obj
-
-        # ================================= JSON READ START =================================
-        # ==================================================================================
+        
         
         logger.info("Loading hyper-params...")
         with open(hparams_json) as f:
             hparam = json.load(f, object_hook=infinity_decoder)
-
+        
         random_seed = hparam["random_seed"]
         resume_training = hparam["resume_training"]
         resume_training_timestamp = hparam["resume_training_timestamp"]
         max_epoch = hparam["max_epoch"]
         initial_epoch = hparam["initial_epoch"]
-
+        
         # data-related params
         batch_size = hparam["batch_size"]
         image_size = hparam["image_size"]
         volume_depth = hparam["volume_depth"]
         color_mode = hparam["color_mode"]
         split_ratio_100 = hparam["split_ratio_100"]
-
+        
         # gradient accumulation and batch_size
         gradient_accum = hparam["gradient_accum"]
         n_grad_accum_steps = 0
@@ -236,7 +158,7 @@ if __name__ == "__main__":
             logger.info("Gradient accumulation is enabled")
             n_grad_accum_steps = hparam["gradient_accum-conf"]["n_grad_accum_steps"]
             batch_size = hparam["gradient_accum-conf"]["batch_size"]
-
+        
         ablation = hparam["ablation"]
         ablation_study_size = 0
         if ablation:
@@ -258,14 +180,14 @@ if __name__ == "__main__":
         early_stop_delta = estop_conf["delta"]
         early_stop_start_epoch = estop_conf["start_epoch"]
         early_stop_baseline = estop_conf["baseline"]
-
+        
         # Performance monitoring
         performance_monitor = hparam["performance_monitor-conf"]
         monitor = performance_monitor["monitor"]
         initial_threshold = performance_monitor["initial_threshold"]
         mode = performance_monitor["mode"]
         freq = performance_monitor["freq"]
-
+        
         precision = hparam["precision"]
         learning_rate = hparam["learning_rate"]
         lr_schedular = hparam["lr_schedular"]
@@ -276,9 +198,9 @@ if __name__ == "__main__":
         model_name = hparam["model_name"]
         track_system_usage = hparam["track_system_usage"]
         print_file_names = hparam["print_file_names"]
-        # ================================= JSON READ DONE =================================
-        # ==================================================================================
-
+        dataset_name = hparam["dataset_name"]
+        default_transforms = hparam["default_transforms"]
+        train_transforms = hparam["train_transforms"]
         
         n_ch = dict(rgb=3, grayscale=1)[color_mode]
         if not is_running_in_colab():
@@ -297,7 +219,94 @@ if __name__ == "__main__":
         logger.info(f"{what_changed=}")
         logger.info(f"cache file prefix: {cache_file_name_fmt}")
         logger.debug(f"hyperparams: {hparam}")
-
+        
+        
+        # ================================= JSON READ DONE =================================
+        # ==================================================================================
+        
+        def download_oasis():
+            global log_root
+            
+            if is_docker():
+                msg = "Please set KAGGLE_USERNAME, KAGGLE_KEY"
+                assert os.environ["KAGGLE_USERNAME"], msg
+                assert os.environ["KAGGLE_KEY"], msg
+            if "KAGGLE_USERNAME" in os.environ.keys() and "KAGGLE_KEY" in os.environ.keys():
+                # creating kaggle.json
+                with open("./kaggle.json", "w") as outfile:
+                    logger.debug("Creating kaggle.json file")
+                    data = dict(
+                        username=os.environ["KAGGLE_USERNAME"], key=os.environ["KAGGLE_KEY"]
+                    )
+                    json.dump(data, outfile)
+            
+            # Replace with the actual Kaggle dataset URL
+            logger.info("Downloading OASIS dataset...")
+            dataset_url = "https://www.kaggle.com/datasets/ninadaithal/imagesoasis"
+            download_kaggle_dataset(dataset_url, data_dir=log_root, verify_ssl=False)
+            
+            open("./kaggle.json", "w").close()
+            logger.debug("Wiping out the kaggle.json file")
+        
+        
+        # Download the dataset
+        if not os.path.exists(datasetdir):
+            download_oasis()
+        
+        # Dataset Selection
+        # DO NOT TOUCH - END ===================================
+        assert os.path.exists(datasetdir), f"Dataset path is incorrect {datasetdir}"
+        logger.info(f"{datasetdir}, {dataset_name}")
+        
+        # # Test Image selection
+        
+        TEST_IMG_PATH, TEST_IMG_LABEL = (
+            f"{datasetdir}/Mild Dementia/OAS1_0028_MR1_mpr-1_127.jpg",
+            "Mild_Dementia",
+        )
+        import os
+        
+        assert os.path.exists(TEST_IMG_PATH), (
+            f"Test image path is incorrect {TEST_IMG_PATH}"
+        )
+        logger.info(f"{TEST_IMG_PATH}, {TEST_IMG_LABEL}")
+        
+        import json
+        import os
+        
+        
+        def get_experiment_details(dataset, model, ts):
+            exp_asset_dir = f"{log_root}/results/{dataset}/{model}/{ts}"
+            assert os.path.exists(exp_asset_dir), (
+                f"Experiment does not exist '{exp_asset_dir}'"
+            )
+            checkpoint_model_dir = None
+            with open(exp_asset_dir + "/currentepoch.txt") as fp:
+                last_epoch = int(fp.read().strip())
+                checkpoint_model_dir = (
+                    exp_asset_dir + f"/models/epoch=%02d{model_ext}" % last_epoch
+                )
+                assert os.path.exists(checkpoint_model_dir), (
+                    f"Unable to find the last checkpoint file {checkpoint_model_dir}"
+                )
+            best_model_dir = exp_asset_dir + f"/models/best-model{model_ext}"
+            if not os.path.exists(best_model_dir):
+                best_model_dir = None
+            
+            best_model_info = None
+            if os.path.exists(exp_asset_dir + "/bestvalue.json"):
+                with open(exp_asset_dir + "/bestvalue.json") as fp:
+                    best_model_info = json.load(fp)
+            
+            return dict(
+                last_epoch=last_epoch,
+                best_checkpoint=best_model_dir,
+                last_checkpoint=checkpoint_model_dir,
+                best_model_info=best_model_info,
+                project_dir=exp_asset_dir,
+            )
+        
+        
         # Learning rate schedular callback
         def lr_schedule(epoch):
             """
@@ -310,22 +319,23 @@ if __name__ == "__main__":
                 learning_rate = 0.0001
             if epoch > 15:
                 learning_rate = 0.00001
-
+            
             tf.summary.scalar("learning rate", data=learning_rate, step=epoch)
             return learning_rate
-
+        
+        
         resume_checkpoint_path = None
         experiment_id_path = os.path.join(
             log_root, "current_experiment_timestamp_id.txt"
         )
-
+        
         if resume_training and resume_training_timestamp is None:
             assert os.path.exists(experiment_id_path), (
                 "Unable to resume experiment. No previous timestamp detected."
             )
             with open(experiment_id_path, "r") as fp:
                 resume_training_timestamp = fp.read(resume_training_timestamp)
-
+        
         # load the model form the given timestamp
         if resume_training_timestamp:
             logger.info(
@@ -349,13 +359,15 @@ if __name__ == "__main__":
                 mode = best_model_info["mode"]
                 freq = best_model_info["frequency"]
             logger.info(f"Resuming checkpoint form epoch={initial_epoch}.")
+        
+        
         # =====================================================
-
+        
         def save_hparams():
             global hparam
             hyprams = hparam
             import json
-
+            
             log("Saving hyperparameters.")
             logger.debug(hyprams)
             # Convert and write JSON object to file
@@ -373,11 +385,12 @@ if __name__ == "__main__":
                         tf.summary.scalar(k, v, step=0)
                     else:
                         tf.summary.text(k, str(v), step=0)
-
+        
+        
         # # Prepare `log-artifact` directory
         import datetime
         import pathlib
-
+        
         timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         if resume_training_timestamp:
             logger.info(f"Resume timestamp {resume_training_timestamp}")
@@ -392,7 +405,8 @@ if __name__ == "__main__":
         artifact_root = f"{log_root}/results/{dataset_name}/{unique_dir}"
         pathlib.Path(artifact_root).mkdir(parents=True, exist_ok=True)
         pathlib.Path(tf_log_dir).mkdir(parents=True, exist_ok=True)
-
+        
+        
         def log(*args, **kwargs):
             time = False
             if "time" in kwargs.keys():
@@ -412,16 +426,17 @@ if __name__ == "__main__":
                 kwargs["file"] = fp
                 kwargs["flush"] = True
                 print(*args, **kwargs)
-
+        
+        
         log(f"Experiment path: '{artifact_root}'")
-
+        
         # # <font color='red'>Training Resume Timestamp
         # ## Use this `timestamp` to update `resume_training_timestamp` variable
         lock_csv = Lock()
         lock_worker = Lock()
         num_worker = manager.Value("num_worker", 0)
         max_worker = manager.Value("max_worker", MAX_WORKERS)
-
+        
         if track_system_usage:
             my_proc = Process(
                 target=loop_log_system_usage,
@@ -436,33 +451,27 @@ if __name__ == "__main__":
             )
             # my_proc.daemon = True  # Set the daemon flag
             my_proc.start()
-
+        
         log(f"Resume timestamp: '{timestamp}'")
-
+        
         # # setting random seed
-
+        
         import os
         import random
-
+        
         import matplotlib.pyplot as plt
-
-        # from tensorflow.keras import Model
-        # from tensorflow.keras.models import Sequential
-        # from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, GlobalAveragePooling2D
-        #   DataGenerator to read images and rescale images
-        # from tensorflow.keras.preprocessing.image import ImageDataGenerator
-        # from sklearn.model_selection import train_test_split
-        # from collections import Counter
+        
         import numpy as np
         import tensorflow as tf
-        from tensorflow.keras.callbacks import EarlyStopping
-
+        from keras.callbacks import EarlyStopping
+        
         tf.random.set_seed(random_seed)
         random.seed(random_seed)
         np.random.seed(random_seed)
-
+        
+        
         # # Loading multiview-datasets
-
+        
         def plot_to_tfimage(figure):
             """Converts the matplotlib plot specified by 'figure' to a PNG image and
             returns it. The supplied figure is closed and inaccessible after this call."""
@@ -478,37 +487,39 @@ if __name__ == "__main__":
             # Add the batch dimension
             image = tf.expand_dims(image, 0)
             return image
-
+        
+        
         # define a tf image logger
         tf_image_logger = tf.summary.create_file_writer(tf_log_dir)
         # # example use
         # with tf_image_logger.as_default():
         #     tf.summary.image("Image Sample", tf_img, step=0)
-
+        
         import os
         import pathlib
         import random
         import warnings
         from collections import defaultdict
-
+        
         import cv2
         import numpy as np
         import tensorflow as tf
         import torchvision.transforms
         from torch.utils.data import Dataset
-
+        
+        
         class OASISTorchDataset(Dataset):
             BINARY_TASK = "binary"
             CATEGORY_TASK = "categorical"
             VOLUME_DEPTH = 61  # KNOWN DURING EDA: per patient we have 61 MRI slices
-
+            
             def get_volume_for_image(self, oasis_image_path):
                 """
                 For a given image this function automatically determine the slices and return the volume and actual label
                 :param oasis_image_path:
                 :return:
                 """
-
+                
                 oasis_image_path = pathlib.Path(oasis_image_path)
                 class_name = oasis_image_path.parent.name
                 # OAS1_0001_MR1_mpr-1_101.jpg
@@ -521,7 +532,7 @@ if __name__ == "__main__":
                 images = self._sample_from(images, OASISTorchDataset.VOLUME_DEPTH)
                 lbl = self.encode_labels(class_name)
                 return self.load_volume(images), class_name, lbl
-
+            
             def __init__(
                 self,
                 path,
@@ -564,19 +575,15 @@ if __name__ == "__main__":
                 self.num_classes = len(self.classnames)
                 if task_type == self.BINARY_TASK:
                     self.num_classes = 1
-
+                
                 self.image_size = image_size
                 self.dtype = dtype
                 self.batch_size = batch_size
+                default_transform = torchvision.transforms.Compose(get_transforms("default"))
                 self.transforms = (
                     transforms
                     if transforms
-                    else torchvision.transforms.Compose(
-                        [
-                            torchvision.transforms.ToTensor(),
-                            torchvision.transforms.Normalize(mean=0.0, std=1.0),
-                        ]
-                    )
+                    else default_transform
                 )
                 self.split_name = split_name
                 self.task_type = task_type
@@ -586,10 +593,10 @@ if __name__ == "__main__":
                 self.ablation = ablation
                 # load dataset
                 self._load(seed)
-
+            
             def _load_class_names(self):
                 return [i for i in os.listdir(self.path) if i != ".DS_Store"]
-
+            
             def _group_images_by_subject(self, image_dir):
                 """Groups images by subject ID based on their filenames.
                 Args:
@@ -615,7 +622,7 @@ if __name__ == "__main__":
                         f"images scanned from '{image_dir}'",
                     )
                 return subject_groups
-
+            
             def item_generator(self):
                 """
                 :return: yield MRI slices as list and encoded label
@@ -633,24 +640,24 @@ if __name__ == "__main__":
                             self._sample_from(slices, OASISTorchDataset.VOLUME_DEPTH),
                             lbl,
                         )
-
+            
             @staticmethod
             def _sample_from(lst, n):
                 if n > len(lst):
                     raise ValueError(
                         "Sample size cannot be greater than the list size."
                     )
-
+                    
                     # Calculate step size for approximately even distribution
                 step_size = len(lst) // n
-
+                
                 # Generate indices with approximately even spacing
                 indices = [i * step_size for i in range(n)]
-
+                
                 # Adjust last index to ensure it's within bounds
                 indices[-1] = min(indices[-1], len(lst) - 1)
                 return [lst[i] for i in indices]
-
+            
             def encode_labels(self, labels):
                 """
                 :param labels: this could be a string or list of strings
@@ -673,7 +680,7 @@ if __name__ == "__main__":
                     return np.array(enc_label[0]).astype(self.dtype)
                 else:
                     return np.array(enc_label).astype(self.dtype)
-
+            
             def decode_labels(
                 self, probabilities: np.ndarray, probability_threshold=0.5
             ):
@@ -701,7 +708,7 @@ if __name__ == "__main__":
                     indices = probabilities.argmax(axis=1)
                     string_array = np.array(self.classnames)
                     return string_array[indices].tolist()
-
+            
             def _prepare_image(self, image_path):
                 image_data = cv2.imread(image_path)
                 if self.nch == 1:
@@ -711,7 +718,7 @@ if __name__ == "__main__":
                 # resize
                 image_data = cv2.resize(image_data, self.image_size)
                 return image_data
-
+            
             def load_volume(self, image_files: list, label=None, idx=None):
                 """Loads a 3D volume from a directory of JPEG images.
                 Args:
@@ -745,10 +752,10 @@ if __name__ == "__main__":
                     return volume
                 else:
                     return volume, label
-
+            
             def _collect_items(self):
                 return list(self.item_generator())
-
+            
             def _get_split_sizes(self, total_items):
                 size = total_items
                 # convert [0,100] scale to [0,1]
@@ -779,7 +786,7 @@ if __name__ == "__main__":
                 if self.verbose:
                     logger.info(f"Dataset {train_size=}, {val_size=}, and {test_size=}")
                 return train_size, val_size, test_size
-
+            
             def _split(self, items):
                 train_size, val_size, test_size = self._get_split_sizes(len(items))
                 if self.split_name == "train":
@@ -787,10 +794,10 @@ if __name__ == "__main__":
                     self.items = items[:train_size]
                 elif self.split_name == "validation":
                     # validation
-                    self.items = items[train_size : train_size + val_size]
+                    self.items = items[train_size: train_size + val_size]
                 else:
                     # test
-                    self.items = items[train_size + val_size :]
+                    self.items = items[train_size + val_size:]
                 if self.ablation == 0:
                     if len(self.items) % self.batch_size != 0:
                         warnings.warn(
@@ -798,9 +805,9 @@ if __name__ == "__main__":
                             f"({(len(self.items) % self.batch_size) * OASISTorchDataset.VOLUME_DEPTH}) slices are"
                             f" not in use"
                         )
-
+                
                 return self.items
-
+            
             def _load(self, seed):
                 items = self._collect_items()
                 # shuffle
@@ -813,15 +820,15 @@ if __name__ == "__main__":
                 # split
                 self.items = self._split(items)
                 return self
-
+            
             def __len__(
                 self,
             ):
                 return len(self.items)
-
+            
             def __getitem__(self, idx):
                 return self.load_volume(*self.items[idx], idx=idx)
-
+            
             def show_sample_data(self, sample_size_per_class=4, random=False):
                 classnames = self.classnames
                 stop_loop_cond = len(classnames) * sample_size_per_class
@@ -860,7 +867,8 @@ if __name__ == "__main__":
                             plt.axis("off")
                     if sum(found_classes.values()) == stop_loop_cond:
                         break
-
+        
+        
         class OASISTFDataset:
             def __init__(self):
                 self.sample_dataset: OASISTorchDataset = None
@@ -868,13 +876,13 @@ if __name__ == "__main__":
                 self.num_classes = None
                 self.num_items = None
                 self.recommended_batches = None
-
+            
             @staticmethod
             def torch_to_tf(torch_dataset, batch_size):
                 def torch_data_gen():
                     for img, lbl in torch_dataset:
                         yield tf.convert_to_tensor(img), tf.convert_to_tensor(lbl)
-
+                
                 input_shape = (
                     torch_dataset.VOLUME_DEPTH,
                     *torch_dataset.image_size,
@@ -894,7 +902,7 @@ if __name__ == "__main__":
                     buffer_size=tf.data.AUTOTUNE
                 )
                 return dataset
-
+            
             def tf_oasis_load_dataset(
                 self,
                 directory,
@@ -996,39 +1004,63 @@ if __name__ == "__main__":
                     f"{cache_file_name_fmt}-{self.num_classes}_test.tfrecord"
                 )
                 return train_dataset, val_dataset, test_dataset
-
+            
             def encode_label(self, labels):
                 return self.sample_dataset.encode_labels(labels)
-
+            
             def decode_labels(
                 self, probabilities: np.ndarray, probability_threshold=0.5
             ):
                 return self.sample_dataset.decode_labels(
                     probabilities, probability_threshold
                 )
-
+        
+        
         # ## Dataset loading optimization and normalization
-
+        
+        def get_transforms(type="default"):
+            global default_transforms, train_transforms
+            if type == "default":
+                return prepare_transforms(**default_transforms)
+            if type == "train":
+                return prepare_transforms(**train_transforms)
+            raise f"Unrecognised transform type: {type}"
+        
+        
+        def prepare_transforms(augmentation=True, filter=True, normalize=True, standarized=True):
+            """"""
+            transform_q = []
+            if augmentation:
+                transform_q.extend([
+                    torchvision.transforms.ToTensor(),
+                    torchvision.transforms.RandomVerticalFlip(),  # augmentation
+                    torchvision.transforms.RandomHorizontalFlip(),  # augmentation
+                ])
+            if filter:
+                transform_q.extend([
+                    torchvision.transforms.ToPILImage(),
+                    torchvision.transforms.Lambda(bilateral_filter),  # pre-processing
+                    torchvision.transforms.ToPILImage(),
+                    torchvision.transforms.ToTensor(),
+                    torchvision.transforms.Lambda(lambda tensor: tensor.permute(1, 2, 0)),
+                ])
+            if normalize:
+                transform_q.append(torchvision.transforms.Lambda(lambda tensor_img: tensor_img / 255.))  # normalize
+            if standarized:
+                transform_q.append(torchvision.transforms.Normalize(mean=0.0, std=1.0))  # standardized
+            return transform_q
+        
+        
         def bilateral_filter(pil_image):
             return cv2.bilateralFilter(np.array(pil_image), 15, 75, 75)
-
-        transforms = torchvision.transforms.Compose(
-            [
-                torchvision.transforms.ToTensor(),
-                torchvision.transforms.RandomVerticalFlip(),
-                torchvision.transforms.RandomHorizontalFlip(),
-                torchvision.transforms.ToPILImage(),
-                torchvision.transforms.Lambda(bilateral_filter),
-                torchvision.transforms.ToPILImage(),
-                torchvision.transforms.ToTensor(),
-                torchvision.transforms.Lambda(lambda tensor: tensor.permute(1, 2, 0)),
-                torchvision.transforms.Normalize(mean=0.0, std=1.0),
-            ]
-        )
-
+        
+        
+        # train transforms
+        transforms = torchvision.transforms.Compose(get_transforms("train"))
+        
         OASISTorchDataset.VOLUME_DEPTH = volume_depth
         odd = OASISTFDataset()
-
+        
         train_ds, val_ds, test_ds = odd.tf_oasis_load_dataset(
             datasetdir,
             transforms=transforms,
@@ -1042,15 +1074,16 @@ if __name__ == "__main__":
             split_ratio_100=split_ratio_100,
             dtype=f"float{precision}",
         )
-
+        
         CLASS_NAMES = odd.classnames
         num_classes = odd.num_classes
-
+        
         class_weights = None
         logger.info(f"class_weights: {class_weights}, {get_system_resource()}")
-
+        
+        
         # # Plot to Image and tensorboard logging
-
+        
         def tf_image_grid(images, label):
             """Return a square grid of images as a tensor."""
             # Create a figure to contain the plot.
@@ -1065,7 +1098,8 @@ if __name__ == "__main__":
                     ax.set_title(CLASS_NAMES[np.argmax(label)] + f" view-{i:02}")
                 plt.axis("off")
             return plot_to_tfimage(figure)
-
+        
+        
         def volume_viewer():
             for x_batch, y in train_ds:  # train_ds, val_ds, test_ds
                 lbl = y[0]
@@ -1085,15 +1119,16 @@ if __name__ == "__main__":
                     plt.imshow(tf_i.numpy()[0])
                     plt.axis("off")
                 break
-
+        
+        
         volume_viewer()
-
+        
         # # Logger and Callbacks
-
+        
         # CSV Logger
         import glob
         import shutil
-
+        
         from tensorflow.keras.callbacks import (
             Callback,
             CSVLogger,
@@ -1101,7 +1136,7 @@ if __name__ == "__main__":
             LambdaCallback,
             LearningRateScheduler,
         )
-
+        
         # Create EarlyStopping callback
         early_stopping = EarlyStopping(
             monitor=early_stop_monitor,
@@ -1113,7 +1148,7 @@ if __name__ == "__main__":
             restore_best_weights=True,
             baseline=early_stop_baseline,
         )
-
+        
         csv_logger = CSVLogger(artifact_root + "/metrics.csv", append=True)
         # Tensorboard Logger
         tensorboard_callback = tf.keras.callbacks.TensorBoard(
@@ -1127,7 +1162,7 @@ if __name__ == "__main__":
             embeddings_freq=0,
             embeddings_metadata=None,
         )
-
+        
         model_ckpt = tf.keras.callbacks.ModelCheckpoint(
             artifact_root + "/models/epoch={epoch:02d}%s" % model_ext,
             monitor=monitor,
@@ -1138,7 +1173,7 @@ if __name__ == "__main__":
             save_freq=freq,
             initial_value_threshold=initial_threshold,
         )
-
+        
         model_best_ckpt = tf.keras.callbacks.ModelCheckpoint(
             artifact_root + f"/models/best-model{model_ext}",
             monitor=monitor,
@@ -1149,12 +1184,13 @@ if __name__ == "__main__":
             save_freq=freq,
             initial_value_threshold=initial_threshold,
         )
-
+        
+        
         class BestModelEpochTrackerCallback(Callback):
             """
             This callback monitor best values and updates in a json file project_dir/bestvalue.json
             """
-
+            
             def __init__(self, monitor, mode, initial_value_threshold=None, verbose=0):
                 assert mode in ("min", "max")
                 initial_thresh = initial_value_threshold
@@ -1170,7 +1206,7 @@ if __name__ == "__main__":
                     if self.best_value is None:
                         self.best_value = -np.Inf
                 self.verbose = verbose
-
+            
             def on_epoch_end(self, epoch, metrics=None):
                 global print_file_names
                 print_file_names = False
@@ -1202,19 +1238,21 @@ if __name__ == "__main__":
                         self.logger.info(
                             f"Epoch {epoch + 1}: {self.monitor} did not improved form {self.best_value}"
                         )
-
+        
+        
         bestval_monitor_callback = BestModelEpochTrackerCallback(
             monitor=monitor,
             mode=mode,
             initial_value_threshold=initial_threshold,
         )
-
+        
+        
         class CleanupCallback(Callback):
             # def on_epoch_end(self, epoch, metrics=None):
             #     return
             #     import gc
             #     gc.collect()
-
+            
             def on_epoch_begin(self, epoch, metrics=None):
                 # clean last checkpoint assets
                 last_epoch = epoch - 1
@@ -1230,14 +1268,15 @@ if __name__ == "__main__":
                         os.remove(pattern)
                 except:
                     pass
-
+        
+        
         cleanup_callback = CleanupCallback()
         lr_callback = LearningRateScheduler(lr_schedule)
-
+        
         callbacks = []
         if lr_schedular:
             callbacks.extend([lr_callback])
-
+        
         callbacks.extend(
             [
                 csv_logger,
@@ -1248,12 +1287,13 @@ if __name__ == "__main__":
                 cleanup_callback,
             ]
         )
-
+        
         if early_stop:
             callbacks.extend([early_stopping])
-
+        
         import keras.applications
-
+        
+        
         def create_multiview_mobilenet(
             input_shape, num_views, num_classes, trainable=False
         ):
@@ -1271,21 +1311,21 @@ if __name__ == "__main__":
             input_tensor = keras.Input(
                 shape=(num_views, *input_shape), name="multi_view_input"
             )
-
+            
             # Distribute the input to different branches for each view
             def distribute_views(views):
                 unstacked_views = tf.split(views, num_views, axis=1, name="view_input_")
                 unstacked_views = [tf.squeeze(t, axis=1) for t in unstacked_views]
                 return unstacked_views
-
+            
             distributed_input = keras.layers.Lambda(
                 distribute_views, name="distribute_view_input"
             )(input_tensor)
             # distributed_input = [keras.Input(shape=input_shape) for _ in range(num_views)]
-
+            
             # Create a list to store the outputs of each view's MobileNet
             mobilenet_outputs = []
-
+            
             # Create and apply MobileNet to each view
             for i in range(num_views):
                 base_model = keras.applications.MobileNet(
@@ -1295,31 +1335,33 @@ if __name__ == "__main__":
                 base_model.trainable = trainable  # Freeze base model weights
                 x = base_model(distributed_input[i])
                 mobilenet_outputs.append(x)
-
+            
             # Concatenate the outputs of all views
             merged_features = keras.layers.Concatenate(axis=-1)(mobilenet_outputs)
-
+            
             # Add custom layers on top of the concatenated features
             x = keras.layers.Conv2D(256, (3, 3), activation="relu")(merged_features)
             x = keras.layers.MaxPooling2D(pool_size=(2, 2))(x)
             x = keras.layers.GlobalAveragePooling2D()(x)
             x = keras.layers.Dropout(0.5)(x)
             outputs = keras.layers.Dense(num_classes, activation="softmax")(x)
-
+            
             # Create and compile the final model
             model = keras.Model(inputs=input_tensor, outputs=outputs)
-
+            
             # cleanup
             def delete(x):
                 del x
-
+            
             list(map(delete, mobilenet_outputs))
             del mobilenet_outputs
-
+            
             return model
-
+        
+        
         import tensorflow as tf
-
+        
+        
         class CustomTrainStep(tf.keras.Model):
             def __init__(self, model, n_gradients, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -1330,13 +1372,13 @@ if __name__ == "__main__":
                     tf.Variable(tf.zeros_like(v, dtype=tf.float32), trainable=False)
                     for v in self.trainable_variables
                 ]
-
+            
             def call(self, inputs):
                 return self.model(inputs)
-
+            
             def train_step(self, data):
                 self.n_acum_step.assign_add(1)
-
+                
                 x, y = data
                 # Gradient Tape
                 with tf.GradientTape() as tape:
@@ -1349,39 +1391,40 @@ if __name__ == "__main__":
                 # Accumulate batch gradients
                 for i in range(len(self.gradient_accumulation)):
                     self.gradient_accumulation[i].assign_add(gradients[i])
-
+                
                 # If n_acum_step reach the n_gradients then we apply accumulated gradients to update the variables otherwise do nothing
                 tf.cond(
                     tf.equal(self.n_acum_step, self.n_gradients),
                     self.apply_accu_gradients,
                     lambda: None,
                 )
-
+                
                 # update metrics
                 self.compiled_metrics.update_state(y, y_pred)
                 return {m.name: m.result() for m in self.metrics}
-
+            
             def apply_accu_gradients(self):
                 # apply accumulated gradients
                 self.optimizer.apply_gradients(
                     zip(self.gradient_accumulation, self.trainable_variables)
                 )
-
+                
                 # reset
                 self.n_acum_step.assign(0)
                 for i in range(len(self.gradient_accumulation)):
                     self.gradient_accumulation[i].assign(
                         tf.zeros_like(self.trainable_variables[i], dtype=tf.float32)
                     )
-
+            
             def load_weights(self, *args, **kwargs):
                 self.model.load_weights(*args, **kwargs)
-
+            
             def save(self, *args, **kwargs):
                 self.model.save(*args, **kwargs)
-
+        
+        
         # # Model Multiview build
-
+        
         # Define the model
         def prepare_model():
             global \
@@ -1395,7 +1438,7 @@ if __name__ == "__main__":
                 distributed, \
                 gradient_accum
             import tensorflow as tf
-
+            
             # EACH LINK CONTAINS AVAILABLE OPTIONS
             # Link: https://www.tensorflow.org/api_docs/python/tf/keras/optimizers#classes
             optimizer = tf.keras.optimizers.Adam(
@@ -1410,17 +1453,17 @@ if __name__ == "__main__":
                 tf.keras.metrics.SensitivityAtSpecificity(0.6),
                 tf.keras.metrics.SpecificityAtSensitivity(0.6),
             ]
-
+            
             log("Building model...", get_system_resource())
             import keras
-
+            
             model = create_multiview_mobilenet(
                 (image_size, image_size, n_ch),
                 volume_depth,
                 num_classes,
                 trainable=trainable,
             )
-
+            
             if gradient_accum:
                 # input_tensor = keras.Input(shape=(volume_depth, image_size, image_size, n_ch))
                 logger.info(f"Printing model summary... {get_system_resource()}")
@@ -1430,7 +1473,7 @@ if __name__ == "__main__":
             else:
                 logger.info(f"Printing model summary... {get_system_resource()}")
                 model.summary()
-
+            
             # Compile the model
             log("Compile model")
             model.compile(
@@ -1440,7 +1483,8 @@ if __name__ == "__main__":
                 run_eagerly=True,
             )
             return model, optimizer, metrics
-
+        
+        
         def get_dummy_dataset():
             global volume_depth, image_size, image_size, n_ch, num_classes
             items = 1
@@ -1450,23 +1494,24 @@ if __name__ == "__main__":
             labels = tf.ones(shape=(items, num_classes))
             dataset = tf.data.Dataset.from_tensor_slices((features, labels))
             return dataset.batch(1)
-
+        
+        
         import gc
-
+        
         gc.collect()
-
+        
         # Create a strategy to distribute training across CPU and GPU
         if distributed:
             logger.info("Distributed trainig is enabled")
             import keras
             import tensorflow as tf
-
+            
             strategy = tf.distribute.MirroredStrategy(devices)
             with strategy.scope():
                 model, optimizer, metrics = prepare_model()
         else:
             model, optimizer, metrics = prepare_model()
-
+        
         # Warm-up the strategy by performing a single training step
         logger.info(f"Running warm-up step training... {get_system_resource()}")
         dummy_data = get_dummy_dataset()
@@ -1480,9 +1525,9 @@ if __name__ == "__main__":
         )
         del dummy_data
         logger.info(f"Model warm-up is done. {get_system_resource()}")
-
+        
         # # Saving parameters
-
+        
         # reload checkpoint
         if resume_checkpoint_path and os.path.exists(resume_checkpoint_path):
             log("Resuming training...", resume_checkpoint_path)
@@ -1492,9 +1537,9 @@ if __name__ == "__main__":
             initial_epoch = 0
         # daving hyper-params
         save_hparams()
-
+        
         # # Training
-
+        
         # Train the model
         log("Experiment: Started", time=True)
         log(f"Starting training model={model_name}", get_system_resource())
@@ -1509,7 +1554,7 @@ if __name__ == "__main__":
             max_queue_size=3,
         )
         log(f"Training done={model_name}")
-
+        
         # Evaluate the model on the test set
         best_model = artifact_root + f"/models/best-model{model_ext}"
         if os.path.exists(best_model):
@@ -1518,20 +1563,21 @@ if __name__ == "__main__":
         log("Experiment: Evaluating", time=True)
         log(f"Evaluating model={model_name}...")
         test_result = model.evaluate(test_ds)
-
+        
         metrics_name = [k.name for k in metrics]
         metrics_name.insert(0, "loss")
-
+        
         log(
             f"{model_name}", {f"test_{k}": v for v, k in zip(test_result, metrics_name)}
         )
-
+        
         # TF-logging test values
         file_writer = tf.summary.create_file_writer(tf_log_dir + "/test")
         with file_writer.as_default():
             for v, k in zip(test_result, metrics):
                 tf.summary.scalar(f"test_{k.name}", v, step=0)
-
+        
+        
         def prepare_prediction_df(ds):
             records = []
             for imgs, lbls in ds:
@@ -1540,23 +1586,25 @@ if __name__ == "__main__":
                 predicted = odd.decode_labels(proba_lbls)
                 records.extend(np.array([actual, predicted]).T.tolist())
             return pd.DataFrame(records, columns=["actual", "predicted"])
-
+        
+        
         train_df = prepare_prediction_df(train_ds)
         val_df = prepare_prediction_df(val_ds)
         test_df = prepare_prediction_df(test_ds)
         train_df.sample(20)
-
+        
         import matplotlib.pyplot as plt
         import pandas as pd
         import seaborn as sns
         from sklearn.metrics import classification_report, confusion_matrix
-
+        
+        
         def analyse_result(df, prefix):
             try:
                 logger.info(f"======================{prefix}=========================")
                 y_true = df["actual"]
                 y_pred = df["predicted"]
-
+                
                 # prepare confusion matrix
                 cm = confusion_matrix(y_true, y_pred)
                 class_ids = list(range(0, len(CLASS_NAMES)))
@@ -1575,7 +1623,7 @@ if __name__ == "__main__":
                 plt.title(f"{prefix} Confusion Matrix\n{CLASS_NAMES}")
                 # prepare classification report
                 report = classification_report(y_true, y_pred)
-
+                
                 # log heatmap to tensorboard
                 with tf_image_logger.as_default():
                     tf_i = plot_to_tfimage(figure)
@@ -1591,13 +1639,13 @@ if __name__ == "__main__":
                         f"{prefix} Confusion Matrix", df.to_string(), step=0
                     )
                     tf.summary.text(f"{prefix} classification report", report, step=0)
-
+                
                 # log into file
                 log(f"{prefix} Confusion Matrix: actual(row) vs predicted(cols)")
                 log(df.to_string())
                 log(f"{prefix} Classification report")
                 log(report)
-
+                
                 # log artifacts to the directory
                 df.to_csv(artifact_root + f"/{prefix}_confusion-matrix.csv")
                 with open(
@@ -1607,13 +1655,15 @@ if __name__ == "__main__":
             except Exception as e:
                 logger.exception(e)
                 logger.info("The dataset does not have all the classes")
-
+        
+        
         analyse_result(train_df, "Training")
         analyse_result(val_df, "Validation")
         analyse_result(test_df, "Testing")
-
+        
+        
         # from PIL import Image
-
+        
         def preprocess_image(image_path):
             # Open the image file
             img_array, lbl, cls_name = odd.sample_dataset.get_volume_for_image(
@@ -1622,27 +1672,28 @@ if __name__ == "__main__":
             img_array = np.expand_dims(img_array, axis=0)
             logger.debug(img_array.shape)
             return img_array
-
+        
+        
         # Example usage:
         actual_class = TEST_IMG_LABEL
         image_path = TEST_IMG_PATH
         image_array = preprocess_image(image_path)
         log("Shape of preprocessed image array:", image_array.shape)
-
+        
         # Predict probabilities
         log("Experiment: Testing", time=True)
         prediction_probabilities = model.predict(image_array)
-
+        
         # Get the index of the highest probability
         logger.debug(list(zip(prediction_probabilities.tolist()[0], CLASS_NAMES)))
         predicted_class_index = np.argmax(prediction_probabilities)
-
+        
         # Define your class labelsa
         class_labels = CLASS_NAMES
-
+        
         # Map the index to the corresponding class label
         predicted_class = class_labels[predicted_class_index]
-
+        
         # TF-logging test values
         file_writer = tf.summary.create_file_writer(tf_log_dir + "/test")
         with file_writer.as_default():
@@ -1651,7 +1702,7 @@ if __name__ == "__main__":
                 f"Actual={actual_class} Predicted={predicted_class}",
                 step=0,
             )
-
+        
         log("Actual class:", actual_class)
         log("Predicted class:", predicted_class)
         log("Experiment: Completed", time=True)

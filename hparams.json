@@ -1,59 +1,72 @@
 {
-    "random_seed": 37,
-    "resume_training": false,
-    "resume_training_timestamp": null,
-    "max_epoch": 50,
-    "initial_epoch": 0,
-    "batch_size": 13,
-    "image_size": 256,
-    "volume_depth": 61,
-    "color_mode": "rgb",
-    "split_ratio_100": [
-        70,
-        20,
-        10
-    ],
-    "gradient_accum": false,
-    "n_grad_accum_steps": 2,
-    "gradient_accum-conf": {
-        "batch_size": 6
-    },
-    "ablation": false,
-    "ablation-conf": {
-        "max_epoch": 100,
-        "ablation_study_size": 60,
-        "batch_size": 6,
-        "image_size": 128,
-        "volume_depth": 3
-    },
-    "trainable": true,
-    "devices": [
-        "CPU:0",
-        "GPU:0"
-    ],
-    "distributed": false,
-    "early_stop": true,
-    "early_stop-conf": {
-        "monitor": "val_loss",
-        "mode": "min",
-        "early_stop_patience": 7,
-        "delta": 0.01,
-        "start_epoch": 5,
-        "baseline": null
-    },
-    "performance_monitor-conf": {
-        "monitor": "val_accuracy",
-        "initial_threshold": 0.5,
-        "mode": "max",
-        "freq": "epoch"
-    },
-    "precision": 32,
-    "learning_rate": 0.001,
-    "lr_schedular": false,
-    "enable_class_weight": false,
-    "model_ext": ".tf",
-    "task_type": "categorical",
-    "model_name": "MultiViewMobileNet",
-    "print_file_names": false,
-    "track_system_usage": false
+  "random_seed": 37,
+  "resume_training": false,
+  "resume_training_timestamp": null,
+  "max_epoch": 50,
+  "initial_epoch": 0,
+  "batch_size": 13,
+  "image_size": 224,
+  "volume_depth": 61,
+  "color_mode": "rgb",
+  "split_ratio_100": [
+    70,
+    20,
+    10
+  ],
+  "gradient_accum": false,
+  "n_grad_accum_steps": 2,
+  "gradient_accum-conf": {
+    "batch_size": 6
+  },
+  "ablation": false,
+  "ablation-conf": {
+    "max_epoch": 100,
+    "ablation_study_size": 120,
+    "batch_size": 6,
+    "image_size": 224,
+    "volume_depth": 31
+  },
+  "trainable": false,
+  "devices": [
+    "CPU:0",
+    "GPU:0"
+  ],
+  "distributed": false,
+  "early_stop": true,
+  "early_stop-conf": {
+    "monitor": "val_loss",
+    "mode": "min",
+    "early_stop_patience": 7,
+    "delta": 0.01,
+    "start_epoch": 5,
+    "baseline": null
+  },
+  "performance_monitor-conf": {
+    "monitor": "val_accuracy",
+    "initial_threshold": 0.5,
+    "mode": "max",
+    "freq": "epoch"
+  },
+  "precision": 32,
+  "learning_rate": 0.001,
+  "lr_schedular": false,
+  "enable_class_weight": false,
+  "model_ext": ".tf",
+  "task_type": "categorical",
+  "model_name": "MultiViewMobileNet",
+  "print_file_names": false,
+  "track_system_usage": false,
+  "dataset_name": "tflogs_mvcnn",
+  "default_transforms": {
+    "augmentation": false,
+    "filter": true,
+    "normalize": true,
+    "standarized": true
+  },
+  "train_transforms": {
+    "augmentation": true,
+    "filter": true,
+    "normalize": true,
+    "standarized": true
+  }
 }
