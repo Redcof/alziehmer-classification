@@ -151,6 +151,7 @@ if __name__ == "__main__":
         volume_depth = hparam["volume_depth"]
         color_mode = hparam["color_mode"]
         split_ratio_100 = hparam["split_ratio_100"]
+        prefetch_buffer_size = hparam["prefetch_buffer_size"]
 
         # gradient accumulation and batch_size
         gradient_accum = hparam["gradient_accum"]
@@ -221,9 +222,22 @@ if __name__ == "__main__":
         logger.info(f"cache file prefix: {cache_file_name_fmt}")
         logger.debug(f"hyperparams: {hparam}")
 
-
         # ================================= JSON READ DONE =================================
         # ==================================================================================
+
+        # memory footprint
+        batch_memory_GB = (precision / 8) * batch_size * image_size * image_size * n_ch * volume_depth * 1E-9
+        train_data_footprint = batch_memory_GB * (prefetch_buffer_size + 1)
+        val_test_data_footprint = batch_memory_GB * 2
+        model_footprint = 1.5  # approx for MultiViewMobileNet
+        logger.info(f"Batch footprint (GB): {round(batch_memory_GB, 2)}")
+        logger.info(f"Constant 'data' footprint(min) (GB): "
+                    f"{round(train_data_footprint + val_test_data_footprint, 2)}")
+        logger.info(f"Constant 'model' footprint(min) (GB): "
+                    f"{round(model_footprint, 2)}")
+        logger.info(f"Constant 'data + model' footprint(min) (GB): "
+                    f"{round(train_data_footprint + val_test_data_footprint + model_footprint, 2)}")
+
 
         def download_oasis():
             global log_root
@@ -879,7 +893,7 @@ if __name__ == "__main__":
                 self.recommended_batches = None
 
             @staticmethod
-            def torch_to_tf(torch_dataset, batch_size):
+            def torch_to_tf(torch_dataset, batch_size, prefetch_buffer_size):
                 def torch_data_gen():
                     for img, lbl in torch_dataset:
                         yield tf.convert_to_tensor(img), tf.convert_to_tensor(lbl)
@@ -900,7 +914,7 @@ if __name__ == "__main__":
                     output_shapes=(input_shape, label_shape),
                 )
                 dataset = dataset.batch(batch_size).prefetch(
-                    buffer_size=tf.data.AUTOTUNE
+                    buffer_size=prefetch_buffer_size
                 )
                 return dataset
 
@@ -912,6 +926,7 @@ if __name__ == "__main__":
                     class_names=None,
                     color_mode="rgb",
                     batch_size=32,
+                    prefetch_buffer_size=1,
                     ablation=0,
                     image_size=(256, 256),
                     seed=None,
@@ -995,13 +1010,13 @@ if __name__ == "__main__":
                     f"0 waste batch recommendations: {self.recommended_batches}"
                 )
                 # convert torch to tf dataset
-                train_dataset = self.torch_to_tf(torch_data_train, batch_size).cache(
+                train_dataset = self.torch_to_tf(torch_data_train, batch_size, prefetch_buffer_size).cache(
                     f"{cache_file_name_fmt}-{self.num_classes}_train.tfrecord"
                 )
-                val_dataset = self.torch_to_tf(torch_data_val, batch_size).cache(
+                val_dataset = self.torch_to_tf(torch_data_val, batch_size, 1).cache(
                     f"{cache_file_name_fmt}-{self.num_classes}_val.tfrecord"
                 )
-                test_dataset = self.torch_to_tf(torch_data_test, batch_size).cache(
+                test_dataset = self.torch_to_tf(torch_data_test, batch_size, 1).cache(
                     f"{cache_file_name_fmt}-{self.num_classes}_test.tfrecord"
                 )
                 return train_dataset, val_dataset, test_dataset
@@ -1083,6 +1098,7 @@ if __name__ == "__main__":
             class_names=None,
             color_mode=color_mode,
             batch_size=batch_size,
+            prefetch_buffer_size=prefetch_buffer_size,
             ablation=ablation_study_size,
             image_size=(image_size, image_size),
             seed=random_seed,
@@ -1307,6 +1323,67 @@ if __name__ == "__main__":
             callbacks.extend([early_stopping])
 
         import keras.applications
+
+
+        ## Mobilenet
+        def create_multiview_mobilenet_attn(input_shape, num_views, num_classes,
+                                            trainable=False, activation='softmax',
+                                            attn_head_count=8, attn_size=64, random_seed=37):
+            """
+            Creates a multiview CNN model using MobileNet as the base.
+
+            Args:
+                input_shape: Tuple, shape of each input image (e.g., (224, 224, 3)).
+                num_views: Integer, number of input views.
+                num_classes: Integer, number of output classes.
+
+            Returns:
+                A Keras Model instance.
+            """
+            VIEW_AXIS = 1
+            input_tensor = keras.Input(shape=(num_views, *input_shape), name="multi_view_input")
+
+            # Distribute the input to different branches for each view
+            def distribute(views, axis=VIEW_AXIS, name="view_input_"):
+                unstacked_views = tf.split(views, num_views, axis=axis, name=name)
+                unstacked_views = [tf.squeeze(t, axis=1) for t in unstacked_views]
+                return unstacked_views
+
+            distributed_input = keras.layers.Lambda(distribute, name="distribute_view_input")(input_tensor)
+            # distributed_input = [keras.Input(shape=input_shape) for _ in range(num_views)]
+
+            # Create and apply MobileNet to each view
+            # Create a list to store the outputs of each view's MobileNet
+            mobilenet_outputs = []
+
+            # Create and apply MobileNet to each view
+            for i in range(num_views):
+                base_model = keras.applications.MobileNet(weights='imagenet', include_top=False,
+                                                          input_shape=input_shape)
+                setattr(base_model, '_name', f"{base_model.name}_view_{i}")
+                base_model.trainable = trainable  # Freeze base model weights
+                x = base_model(distributed_input[i])
+                x = keras.layers.Conv2D(256, (3, 3), activation='relu')(x)
+                x = keras.layers.MaxPooling2D(pool_size=(2, 2))(x)
+                x = keras.layers.GlobalAveragePooling2D()(x)
+                x = keras.layers.Dropout(0.5)(x)
+                # Flatten the output from MultiViewMobileNet
+                x = keras.layers.Flatten()(x)
+                mobilenet_outputs.append(x)
+            # Stack view features to apply multi-head attention per view
+            x = tf.stack(mobilenet_outputs, axis=VIEW_AXIS)
+            x = keras.layers.MultiHeadAttention(num_heads=attn_head_count,
+                                                key_dim=attn_size, attention_axes=[VIEW_AXIS],
+                                                name="viewwise_multihead_attention")(x, x)
+            x = keras.layers.Flatten()(x)
+            # Add custom layers on top of the concatenated features
+            x = keras.layers.Dense(512, activation='relu')(x)
+            x = keras.layers.Dropout(0.2)(x)
+            outputs = keras.layers.Dense(num_classes, activation=activation)(x)
+
+            # Create and compile the final model
+            model = keras.Model(inputs=input_tensor, outputs=outputs)
+            return model
 
 
         def create_multiview_mobilenet(
