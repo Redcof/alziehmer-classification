@@ -1,6 +1,7 @@
 {
   "random_seed": 37,
   "resume_training": false,
+  "evaluate_only" :  false,
   "resume_training_timestamp": null,
   "max_epoch": 50,
   "initial_epoch": 0,

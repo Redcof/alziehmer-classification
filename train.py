@@ -141,6 +141,7 @@ if __name__ == "__main__":
 
         random_seed = hparam["random_seed"]
         resume_training = hparam["resume_training"]
+        evaluate_only = hparam["evaluate_only"]
         resume_training_timestamp = hparam["resume_training_timestamp"]
         max_epoch = hparam["max_epoch"]
         initial_epoch = hparam["initial_epoch"]
@@ -238,6 +239,9 @@ if __name__ == "__main__":
         logger.info(f"Constant 'data + model' footprint(min) (GB): "
                     f"{round(train_data_footprint + val_test_data_footprint + model_footprint, 2)}")
 
+        if evaluate_only:
+            flg = resume_training is True or resume_training_timestamp is not None
+            assert flg, f"If {evaluate_only=} then either of resume_training, resume_training_timestamp needs to set"
 
         def download_oasis():
             global log_root
@@ -1633,19 +1637,22 @@ if __name__ == "__main__":
         # # Training
 
         # Train the model
-        log("Experiment: Started", time=True)
-        log(f"Starting training model={model_name}", get_system_resource())
-        history = model.fit(
-            train_ds,
-            validation_data=val_ds,
-            epochs=max_epoch,
-            initial_epoch=initial_epoch,
-            callbacks=callbacks,
-            class_weight=class_weights,
-            batch_size=batch_size,
-            max_queue_size=3,
-        )
-        log(f"Training done={model_name}")
+        if evaluate_only is False:
+            log("Experiment: Started", time=True)
+            log(f"Starting training model={model_name}", get_system_resource())
+            history = model.fit(
+                train_ds,
+                validation_data=val_ds,
+                epochs=max_epoch,
+                initial_epoch=initial_epoch,
+                callbacks=callbacks,
+                class_weight=class_weights,
+                batch_size=batch_size,
+                max_queue_size=3,
+            )
+            log(f"Training done={model_name}")
+        else:
+            logger.info("On training, only evaluation")
 
         # Evaluate the model on the test set
         best_model = artifact_root + f"/models/best-model{model_ext}"
