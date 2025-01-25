@@ -743,12 +743,12 @@ if __name__ == "__main__":
                 """
                 global print_file_names
                 image_volume = []
+                if print_file_names:
+                    print(
+                        f"\r\bReading[{self.split_name}]:{idx:03} ... ",
+                        end="",
+                    )
                 for image_path in image_files:
-                    if print_file_names:
-                        print(
-                            f"\r\b Reading[{self.split_name}]:{idx:03} {image_path}... ",
-                            end="",
-                        )
                     image_data = self._prepare_image(image_path)
                     # transforming images
                     if self.transforms is not None:
