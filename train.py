@@ -13,10 +13,31 @@ from multiprocessing import Process, Lock, Manager
 import logging
 from datetime import datetime
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+# Create a logger object
 logger = logging.getLogger(__file__)
+
+def configure_logger(logger, ts):
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    
+
+    # Set up a file handler to write logs to a file
+    file_handler = logging.FileHandler(f"logs/{ts}.log", mode="a")
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.INFO|logging.ERROR|logging.CRITICAL)  # Set the logger's level to INFO
+
+    # Set up a console handler to output logs to the console
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.INFO|logging.ERROR|logging.CRITICAL)  # Set the logger's level to INFO
+
+    # Add both handlers to the logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+configure_logger(logger, timestamp)
+
 
 
 def get_system_resource():
@@ -29,7 +50,7 @@ def get_system_resource():
 def log_system_usage(timest, artifact_root, num_worker, lock_csv, lock_worker):
     fi = f"{artifact_root}/system_usage.csv"
     log = f"{timest},{get_system_resource()}"
-    logger.debug(f"Capturing resource details in: {fi}...")
+    logger.info(f"Capturing resource details in: {fi}...")
     lock_csv.acquire()
     with open(fi, "a") as log_file:
         log_file.write(f"{log}\n")
@@ -61,7 +82,7 @@ def loop_log_system_usage(
         num_worker.value += 1
         lock_worker.release()
 
-        timest = datetime.strptime(str(datetime.now()), "%Y-%m-%d %H:%M:%S")
+        timest = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         child_proc = Process(
             target=log_system_usage,
             args=(timest, artifact_root, num_worker, lock_csv, lock_worker),
@@ -221,7 +242,7 @@ if __name__ == "__main__":
         what_changed = f"Training with {model_name=} {task_type=} {lr_schedular=} {activation=} {loss_function=} {ablation_study_size=}"
         logger.info(f"{what_changed=}")
         logger.info(f"cache file prefix: {cache_file_name_fmt}")
-        logger.debug(f"hyperparams: {hparam}")
+        logger.info(f"hyperparams: {hparam}")
 
         # ================================= JSON READ DONE =================================
         # ==================================================================================
@@ -388,7 +409,7 @@ if __name__ == "__main__":
             import json
 
             log("Saving hyperparameters.")
-            logger.debug(hyprams)
+            logger.info(hyprams)
             # Convert and write JSON object to file
             with open(f"{artifact_root}/hyperparams.json", "w") as outfile:
                 json.dump(hyprams, outfile, indent=4)
@@ -410,7 +431,7 @@ if __name__ == "__main__":
         import datetime
         import pathlib
 
-        timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        
         if resume_training_timestamp:
             logger.info(f"Resume timestamp {resume_training_timestamp}")
             timestamp = resume_training_timestamp
@@ -1727,8 +1748,8 @@ if __name__ == "__main__":
                 report = classification_report(y_true, y_pred)
 
                 # log heatmap to tensorboard
+                tf_i = plot_to_tfimage(figure)
                 with tf_image_logger.as_default():
-                    tf_i = plot_to_tfimage(figure)
                     tf.summary.image(
                         f"{prefix} Confusion Matrix-Heatmaps", tf_i, step=0
                     )
@@ -1738,7 +1759,7 @@ if __name__ == "__main__":
                 file_writer = tf.summary.create_file_writer(tf_log_dir)
                 with file_writer.as_default():
                     tf.summary.text(
-                        f"{prefix} Confusion Matrix", df.to_string(), step=0
+                        f"{prefix} Confusion Matrix actual(row) vs predicted(cols)", df.to_string(), step=0
                     )
                     tf.summary.text(f"{prefix} classification report", report, step=0)
 
@@ -1772,7 +1793,6 @@ if __name__ == "__main__":
                 image_path
             )
             img_array = np.expand_dims(img_array, axis=0)
-            logger.debug(img_array.shape)
             return img_array
 
 
@@ -1787,7 +1807,7 @@ if __name__ == "__main__":
         prediction_probabilities = model.predict(image_array)
 
         # Get the index of the highest probability
-        logger.debug(list(zip(prediction_probabilities.tolist()[0], CLASS_NAMES)))
+        logger.info(list(zip(prediction_probabilities.tolist()[0], CLASS_NAMES)))
         predicted_class_index = np.argmax(prediction_probabilities)
 
         # Define your class labelsa
