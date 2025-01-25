@@ -1053,8 +1053,9 @@ if __name__ == "__main__":
 
 
         def prepare_transforms_wrap(augmentation=True, filter=True, normalize=True, standarized=True):
-            """"""
-
+            """
+            Transform 
+            """
             def transform_wrap(x):
                 x = torchvision.transforms.ToTensor()(x)
                 title = "orig_"
@@ -1075,8 +1076,10 @@ if __name__ == "__main__":
                     title += "norm_"
                 # cv2.imshow(title, x.permute(1, 2, 0).numpy())
                 if standarized:
-                    x = torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                                         std=[0.229, 0.224, 0.225])(x)  # standardized
+                    std_setting = standarized
+                    if not isinstance(std_setting, dict):
+                        std_setting = dict(mean=0., std=1.)
+                    x = torchvision.transforms.Normalize(**std_setting)(x)  # standardized
                     title += "stanz_"
                 # cv2.imshow(title, x.permute(1, 2, 0).numpy())
                 x = torchvision.transforms.Lambda(lambda tensor: tensor.permute(1, 2, 0))(x)
@@ -1625,19 +1628,19 @@ if __name__ == "__main__":
         # # Saving parameters
 
         # reload checkpoint
-        if resume_checkpoint_path and os.path.exists(resume_checkpoint_path):
-            log("Resuming training...", resume_checkpoint_path)
-            model.load_weights(resume_checkpoint_path)
-        else:
-            log("Fresh training...")
-            initial_epoch = 0
-        # daving hyper-params
-        save_hparams()
-
-        # # Training
-
-        # Train the model
         if evaluate_only is False:
+            if resume_checkpoint_path and os.path.exists(resume_checkpoint_path):
+                log("Resuming training...", resume_checkpoint_path)
+                model.load_weights(resume_checkpoint_path)
+            else:
+                log("Fresh training...")
+                initial_epoch = 0
+            # daving hyper-params
+            save_hparams()
+
+            # # Training
+
+            # Train the model
             log("Experiment: Started", time=True)
             log(f"Starting training model={model_name}", get_system_resource())
             history = model.fit(
