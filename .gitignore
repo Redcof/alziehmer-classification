@@ -11,4 +11,4 @@ kaggle.json
 /centos_amd64_deps/*
 /imagesoasis/*
 /current_experiment_timestamp_id.txt
-/logs/*.log
+/logs

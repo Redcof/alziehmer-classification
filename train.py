@@ -909,7 +909,7 @@ if __name__ == "__main__":
                         idx = self.classnames.index(lbl)
                         _counter[idx] += 1
                     self.class_count = list(_counter)
-                    self.class_weight = list(_total / _counter)
+                    self.class_weight = {idx: w for idx, w in enumerate(_total / _counter)}
                     logger.info(f"Stat: {self.class_count=} & {self.class_weight=}")
 
             def _load(self, seed):
@@ -1224,7 +1224,7 @@ if __name__ == "__main__":
             class_weight = None
 
         logger.info(f"class_weight: {class_weight}, {get_system_resource()}")
-        
+
         # # Plot to Image and tensorboard logging
 
         def tf_image_grid(images, label):
@@ -1274,7 +1274,6 @@ if __name__ == "__main__":
             Callback,
             CSVLogger,
             EarlyStopping,
-            LambdaCallback,
             LearningRateScheduler,
         )
 
@@ -1296,7 +1295,7 @@ if __name__ == "__main__":
             log_dir=tf_log_dir,
             histogram_freq=0,
             write_graph=False,
-            write_images=False,
+            write_images=True,
             write_steps_per_second=False,
             update_freq="epoch",
             profile_batch=0,
@@ -1409,6 +1408,22 @@ if __name__ == "__main__":
 
         cleanup_callback = CleanupCallback()
         lr_callback = LearningRateScheduler(lr_schedule)
+
+        class GradientNormCallback(tf.keras.callbacks.Callback):
+            def __init__(self, log_dir):
+                super(GradientNormCallback, self).__init__()
+                self.log_dir = log_dir
+                self.summary_writer = tf.summary.create_file_writer(log_dir)
+
+            def on_train_batch_end(self, batch, logs=None):
+                gradients = self.model.optimizer.get_gradients(self.model.loss, self.model.trainable_variables)
+                gradient_norms = [tf.norm(grad) for grad in gradients]
+
+                with self.summary_writer.as_default():
+                    for i, norm in enumerate(gradient_norms):
+                        tf.summary.scalar(f'gradient_norm_{i}', norm, step=self.model.optimizer.iterations)
+
+        grad_callback = GradientNormCallback(log_dir=artifact_root)
 
         callbacks = []
         if lr_schedular:
