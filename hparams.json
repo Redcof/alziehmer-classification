@@ -28,7 +28,7 @@
     "image_size": 128,
     "volume_depth": 5
   },
-  "trainable": false,
+  "trainable": true,
   "devices": [
     "CPU:0",
     "GPU:0"
@@ -52,7 +52,9 @@
   "precision": 32,
   "learning_rate": 0.001,
   "lr_schedular": false,
-  "enable_class_weight": false,
+  "enable_class_weight": true,
+  "class_weight" : null,
+  "sampeling": null,
   "model_ext": ".tf",
   "task_type": "categorical",
   "model_name": "MultiViewMobileNet",

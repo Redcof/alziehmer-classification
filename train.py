@@ -10,34 +10,76 @@ from kaggle_download import download_kaggle_dataset
 plt.rcParams["font.family"] = "serif"
 import psutil
 from multiprocessing import Process, Lock, Manager
-import logging
+import logging, os
 from datetime import datetime
 
 timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-# Create a logger object
-logger = logging.getLogger(__file__)
+def setup_logger(name, timestmp, level=logging.INFO):
+    """
+    Sets up a logger with both file and console handlers.
 
-def configure_logger(logger, ts):
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    
+    Args:
+        name: The name of the logger.
+        log_file: The path to the log file.
+        level: The logging level (default: logging.INFO).
 
-    # Set up a file handler to write logs to a file
-    file_handler = logging.FileHandler(f"logs/{ts}.log", mode="a")
-    file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.INFO|logging.ERROR|logging.CRITICAL)  # Set the logger's level to INFO
+    Returns:
+        The configured logger object.
+    """
+    log_dir = "logs"
+    os.makedirs(log_dir, exist_ok=True)
 
-    # Set up a console handler to output logs to the console
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    console_handler.setLevel(logging.INFO|logging.ERROR|logging.CRITICAL)  # Set the logger's level to INFO
+    # Create log file path
+    log_file = os.path.join(log_dir, f"{timestmp}.log")
 
-    # Add both handlers to the logger
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    # Create file handler
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(level)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     logger.addHandler(file_handler)
+
+    # Create console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
+    console_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
     logger.addHandler(console_handler)
 
-configure_logger(logger, timestamp)
+    return logger
 
+logger = setup_logger(__file__, timestamp)
+
+# # Create a logger object
+# logger = logging.getLogger(__file__)
+
+# def configure_logger(logger, ts):
+#     formatter = logging.Formatter(
+#         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+#     )
+
+#     # Set up a file handler to write logs to a file
+#     file_handler = logging.FileHandler(f"logs/{ts}.log", mode="a")
+#     file_handler.setFormatter(formatter)
+#     file_handler.setLevel(
+#         logging.DEBUG
+#     )  # Set the logger's level to INFO
+
+#     # Set up a console handler to output logs to the console
+#     console_handler = logging.StreamHandler()
+#     console_handler.setFormatter(formatter)
+#     console_handler.setLevel(
+#         logging.DEBUG
+#     )  # Set the logger's level to INFO
+
+#     # Add both handlers to the logger
+#     logger.addHandler(file_handler)
+#     logger.addHandler(console_handler)
+
+
+# configure_logger(logger, timestamp)
 
 
 def get_system_resource():
@@ -45,7 +87,6 @@ def get_system_resource():
     memory_info = psutil.virtual_memory()
     disk_usage = psutil.disk_usage("/")
     return f"{cpu_percent:6.2f}%,{memory_info.percent:6.2f}%,{disk_usage.percent:6.2f}%"
-
 
 def log_system_usage(timest, artifact_root, num_worker, lock_csv, lock_worker):
     fi = f"{artifact_root}/system_usage.csv"
@@ -66,7 +107,7 @@ MAX_WORKERS = 4
 
 
 def loop_log_system_usage(
-        max_worker, num_worker, artifact_root, stop_signal, lock_csv, lock_worker
+    max_worker, num_worker, artifact_root, stop_signal, lock_csv, lock_worker
 ):
     fi = f"{artifact_root}/system_usage.csv"
     logger.info(f"Activity logging sdtarted in a seperate process: {fi}...")
@@ -113,10 +154,8 @@ if __name__ == "__main__":
         import pandas as pd
         import torchvision.transforms
 
-
         def is_running_in_colab():
             return "google.colab" in sys.modules
-
 
         def is_docker():
             path = "/proc/self/cgroup"
@@ -127,9 +166,10 @@ if __name__ == "__main__":
                             return True
             return False
 
-
         if is_docker():
-            log_root = "/mnt/oasis"  # You must mount a physical directory to '/mnt/osais
+            log_root = (
+                "/mnt/oasis"  # You must mount a physical directory to '/mnt/osais
+            )
         else:
             log_root = os.path.abspath(".")
 
@@ -147,14 +187,12 @@ if __name__ == "__main__":
         assert os.path.exists(hparams_json), f"Unable to find {hparams_json}"
         import json
 
-
         def infinity_decoder(obj):
             if obj == "inf":
                 return float("inf")
             elif obj == "-inf":
                 return float("-inf")
             return obj
-
 
         logger.info("Loading hyper-params...")
         with open(hparams_json) as f:
@@ -216,6 +254,7 @@ if __name__ == "__main__":
         learning_rate = hparam["learning_rate"]
         lr_schedular = hparam["lr_schedular"]
         enable_class_weight = hparam["enable_class_weight"]
+        class_weight = hparam["class_weight"]
         model_ext = hparam["model_ext"]
         task_type = hparam["task_type"]  # "binary"
         # Link: https://keras.io/api/applications/
@@ -248,21 +287,36 @@ if __name__ == "__main__":
         # ==================================================================================
 
         # memory footprint
-        batch_memory_GB = (precision / 8) * batch_size * image_size * image_size * n_ch * volume_depth * 1E-9
+        batch_memory_GB = (
+            (precision / 8)
+            * batch_size
+            * image_size
+            * image_size
+            * n_ch
+            * volume_depth
+            * 1e-9
+        )
         train_data_footprint = batch_memory_GB * (prefetch_buffer_size + 1)
         val_test_data_footprint = batch_memory_GB * 2
         model_footprint = 1.5  # approx for MultiViewMobileNet
         logger.info(f"Batch footprint (GB): {round(batch_memory_GB, 2)}")
-        logger.info(f"Constant 'data' footprint(min) (GB): "
-                    f"{round(train_data_footprint + val_test_data_footprint, 2)}")
-        logger.info(f"Constant 'model' footprint(min) (GB): "
-                    f"{round(model_footprint, 2)}")
-        logger.info(f"Constant 'data + model' footprint(min) (GB): "
-                    f"{round(train_data_footprint + val_test_data_footprint + model_footprint, 2)}")
+        logger.info(
+            f"Constant 'data' footprint(min) (GB): "
+            f"{round(train_data_footprint + val_test_data_footprint, 2)}"
+        )
+        logger.info(
+            f"Constant 'model' footprint(min) (GB): {round(model_footprint, 2)}"
+        )
+        logger.info(
+            f"Constant 'data + model' footprint(min) (GB): "
+            f"{round(train_data_footprint + val_test_data_footprint + model_footprint, 2)}"
+        )
 
         if evaluate_only:
             flg = resume_training is True or resume_training_timestamp is not None
-            assert flg, f"If {evaluate_only=} then either of resume_training, resume_training_timestamp needs to set"
+            assert flg, (
+                f"If {evaluate_only=} then either of resume_training, resume_training_timestamp needs to set"
+            )
 
         def download_oasis():
             global log_root
@@ -271,12 +325,16 @@ if __name__ == "__main__":
                 msg = "Please set KAGGLE_USERNAME, KAGGLE_KEY"
                 assert os.environ["KAGGLE_USERNAME"], msg
                 assert os.environ["KAGGLE_KEY"], msg
-            if "KAGGLE_USERNAME" in os.environ.keys() and "KAGGLE_KEY" in os.environ.keys():
+            if (
+                "KAGGLE_USERNAME" in os.environ.keys()
+                and "KAGGLE_KEY" in os.environ.keys()
+            ):
                 # creating kaggle.json
                 with open("./kaggle.json", "w") as outfile:
                     logger.debug("Creating kaggle.json file")
                     data = dict(
-                        username=os.environ["KAGGLE_USERNAME"], key=os.environ["KAGGLE_KEY"]
+                        username=os.environ["KAGGLE_USERNAME"],
+                        key=os.environ["KAGGLE_KEY"],
                     )
                     json.dump(data, outfile)
 
@@ -287,7 +345,6 @@ if __name__ == "__main__":
 
             open("./kaggle.json", "w").close()
             logger.debug("Wiping out the kaggle.json file")
-
 
         # Download the dataset
         if not os.path.exists(datasetdir):
@@ -314,7 +371,6 @@ if __name__ == "__main__":
         import json
         import os
 
-
         def get_experiment_details(dataset, model, ts):
             exp_asset_dir = f"{log_root}/results/{dataset}/{model}/{ts}"
             assert os.path.exists(exp_asset_dir), (
@@ -324,7 +380,7 @@ if __name__ == "__main__":
             with open(exp_asset_dir + "/currentepoch.txt") as fp:
                 last_epoch = int(fp.read().strip())
                 checkpoint_model_dir = (
-                        exp_asset_dir + f"/models/epoch=%02d{model_ext}" % last_epoch
+                    exp_asset_dir + f"/models/epoch=%02d{model_ext}" % last_epoch
                 )
                 assert os.path.exists(checkpoint_model_dir), (
                     f"Unable to find the last checkpoint file {checkpoint_model_dir}"
@@ -346,7 +402,6 @@ if __name__ == "__main__":
                 project_dir=exp_asset_dir,
             )
 
-
         # Learning rate schedular callback
         def lr_schedule(epoch):
             """
@@ -362,7 +417,6 @@ if __name__ == "__main__":
 
             tf.summary.scalar("learning rate", data=learning_rate, step=epoch)
             return learning_rate
-
 
         resume_checkpoint_path = None
         experiment_id_path = os.path.join(
@@ -400,7 +454,6 @@ if __name__ == "__main__":
                 freq = best_model_info["frequency"]
             logger.info(f"Resuming checkpoint form epoch={initial_epoch}.")
 
-
         # =====================================================
 
         def save_hparams():
@@ -426,12 +479,10 @@ if __name__ == "__main__":
                     else:
                         tf.summary.text(k, str(v), step=0)
 
-
         # # Prepare `log-artifact` directory
         import datetime
         import pathlib
 
-        
         if resume_training_timestamp:
             logger.info(f"Resume timestamp {resume_training_timestamp}")
             timestamp = resume_training_timestamp
@@ -445,7 +496,6 @@ if __name__ == "__main__":
         artifact_root = f"{log_root}/results/{dataset_name}/{unique_dir}"
         pathlib.Path(artifact_root).mkdir(parents=True, exist_ok=True)
         pathlib.Path(tf_log_dir).mkdir(parents=True, exist_ok=True)
-
 
         def log(*args, **kwargs):
             time = False
@@ -466,7 +516,6 @@ if __name__ == "__main__":
                 kwargs["file"] = fp
                 kwargs["flush"] = True
                 print(*args, **kwargs)
-
 
         log(f"Experiment path: '{artifact_root}'")
 
@@ -509,7 +558,6 @@ if __name__ == "__main__":
         random.seed(random_seed)
         np.random.seed(random_seed)
 
-
         # # Loading multiview-datasets
 
         def plot_to_tfimage(figure):
@@ -528,7 +576,6 @@ if __name__ == "__main__":
             image = tf.expand_dims(image, 0)
             return image
 
-
         # define a tf image logger
         tf_image_logger = tf.summary.create_file_writer(tf_log_dir)
         # # example use
@@ -546,7 +593,6 @@ if __name__ == "__main__":
         import tensorflow as tf
         import torchvision.transforms
         from torch.utils.data import Dataset
-
 
         class OASISTorchDataset(Dataset):
             BINARY_TASK = "binary"
@@ -574,20 +620,20 @@ if __name__ == "__main__":
                 return self.load_volume(images), class_name, lbl
 
             def __init__(
-                    self,
-                    path,
-                    task_type,
-                    image_size,
-                    transforms,
-                    split_name,
-                    batch_size,
-                    ablation=0,
-                    nch=3,
-                    seed=37,
-                    splits=(70, 20, 10),
-                    class_names=None,
-                    dtype="float32",
-                    verbose=0,
+                self,
+                path,
+                task_type,
+                image_size,
+                transforms,
+                split_name,
+                batch_size,
+                ablation=0,
+                nch=3,
+                seed=37,
+                splits=(70, 20, 10),
+                class_names=None,
+                dtype="float32",
+                verbose=0,
             ):
                 assert len(image_size) == 2, (
                     "Image size must be a tuple of two integers"
@@ -604,9 +650,9 @@ if __name__ == "__main__":
                 if class_names is not None:
                     self.classnames = [c for c in self.classnames if c in class_names]
                 if (
-                        task_type == self.BINARY_TASK
-                        and len(self.classnames) >= 2
-                        and class_names is None
+                    task_type == self.BINARY_TASK
+                    and len(self.classnames) >= 2
+                    and class_names is None
                 ):
                     raise Exception(
                         f"When `class_names` is not specified, "
@@ -619,12 +665,10 @@ if __name__ == "__main__":
                 self.image_size = image_size
                 self.dtype = dtype
                 self.batch_size = batch_size
-                default_transform = torchvision.transforms.Compose(get_transforms("default"))
-                self.transforms = (
-                    transforms
-                    if transforms
-                    else default_transform
+                default_transform = torchvision.transforms.Compose(
+                    get_transforms("default")
                 )
+                self.transforms = transforms if transforms else default_transform
                 self.split_name = split_name
                 self.task_type = task_type
                 self.nch = nch
@@ -632,6 +676,8 @@ if __name__ == "__main__":
                 self.items = []
                 self.ablation = ablation
                 # load dataset
+                self.class_count = None
+                self.class_weight = None
                 self._load(seed)
 
             def _load_class_names(self):
@@ -655,11 +701,11 @@ if __name__ == "__main__":
                     subject_groups[subject_id].append(os.path.join(image_dir, filename))
                 if self.verbose:
                     logger.info(
-                        f"For"
-                        f"{len(subject_groups.keys())}"
-                        "patients,"
-                        f"{len(image_files)}"
-                        f"images scanned from '{image_dir}'",
+                        f"For "
+                        f"{len(subject_groups.keys())} "
+                        "patients, "
+                        f"{len(image_files)} "
+                        f"images scanned from '{image_dir}'.",
                     )
                 return subject_groups
 
@@ -672,8 +718,8 @@ if __name__ == "__main__":
                         (self.path / class_dir).resolve()
                     )
                     for slices, label in zip(
-                            grouped_files.values(),
-                            [class_dir] * len(grouped_files.values()),
+                        grouped_files.values(),
+                        [class_dir] * len(grouped_files.values()),
                     ):
                         lbl = self.encode_labels(label)
                         yield (
@@ -722,7 +768,7 @@ if __name__ == "__main__":
                     return np.array(enc_label).astype(self.dtype)
 
             def decode_labels(
-                    self, probabilities: np.ndarray, probability_threshold=0.5
+                self, probabilities: np.ndarray, probability_threshold=0.5
             ):
                 """
                 :param probabilities: batch of the network output(probabilities)
@@ -794,6 +840,9 @@ if __name__ == "__main__":
                     return volume, label
 
             def _collect_items(self):
+                """
+                Returns lis of [(volume(filenames), and label), ...]
+                """
                 return list(self.item_generator())
 
             def _get_split_sizes(self, total_items):
@@ -810,7 +859,7 @@ if __name__ == "__main__":
                 test_batches = int(round(no_batches * test_ratio))
                 # calculate residual batches
                 residual_batches = (
-                        train_batches + val_batches + test_batches - no_batches
+                    train_batches + val_batches + test_batches - no_batches
                 )
                 # adjust residual batches to/from train_batches
                 if residual_batches < 0:
@@ -834,10 +883,10 @@ if __name__ == "__main__":
                     self.items = items[:train_size]
                 elif self.split_name == "validation":
                     # validation
-                    self.items = items[train_size: train_size + val_size]
+                    self.items = items[train_size : train_size + val_size]
                 else:
                     # test
-                    self.items = items[train_size + val_size:]
+                    self.items = items[train_size + val_size :]
                 if self.ablation == 0:
                     if len(self.items) % self.batch_size != 0:
                         warnings.warn(
@@ -848,6 +897,21 @@ if __name__ == "__main__":
 
                 return self.items
 
+            IS_STAT_CALCULATED = False
+
+            def _calculate_stastistics(self, items):
+                if not self.IS_STAT_CALCULATED:
+                    logger.info("Calculating stastics...")
+                    _counter = np.zeros((4, ), "uint8")
+                    _total = len(items)
+                    for _, lbl in items:
+                        lbl = self.decode_labels(np.array([lbl]))[0]
+                        idx = self.classnames.index(lbl)
+                        _counter[idx] += 1
+                    self.class_count = list(_counter)
+                    self.class_weight = list(_total / _counter)
+                    logger.info(f"Stat: {self.class_count=} & {self.class_weight=}")
+
             def _load(self, seed):
                 items = self._collect_items()
                 # shuffle
@@ -857,12 +921,16 @@ if __name__ == "__main__":
                 if self.ablation:
                     logger.info("This is an ablation study. Reducing dataset")
                     items = items[: self.ablation]
+
+                if not self.IS_STAT_CALCULATED:
+                    self._calculate_stastistics(items)
+                    self.IS_STAT_CALCULATED = True
                 # split
                 self.items = self._split(items)
                 return self
 
             def __len__(
-                    self,
+                self,
             ):
                 return len(self.items)
 
@@ -908,7 +976,6 @@ if __name__ == "__main__":
                     if sum(found_classes.values()) == stop_loop_cond:
                         break
 
-
         class OASISTFDataset:
             def __init__(self):
                 self.sample_dataset: OASISTorchDataset = None
@@ -916,6 +983,8 @@ if __name__ == "__main__":
                 self.num_classes = None
                 self.num_items = None
                 self.recommended_batches = None
+                self.class_count = None
+                self.class_weight = None
 
             @staticmethod
             def torch_to_tf(torch_dataset, batch_size, prefetch_buffer_size):
@@ -944,19 +1013,19 @@ if __name__ == "__main__":
                 return dataset
 
             def tf_oasis_load_dataset(
-                    self,
-                    directory,
-                    transforms,
-                    label_mode="category",
-                    class_names=None,
-                    color_mode="rgb",
-                    batch_size=32,
-                    prefetch_buffer_size=1,
-                    ablation=0,
-                    image_size=(256, 256),
-                    seed=None,
-                    split_ratio_100=(70, 20, 10),
-                    dtype="float32",
+                self,
+                directory,
+                transforms,
+                label_mode="category",
+                class_names=None,
+                color_mode="rgb",
+                batch_size=32,
+                prefetch_buffer_size=1,
+                ablation=0,
+                image_size=(256, 256),
+                seed=None,
+                split_ratio_100=(70, 20, 10),
+                dtype="float32",
             ):
                 assert color_mode in ("grayscale", "rgb"), color_mode
                 assert label_mode in (
@@ -984,7 +1053,13 @@ if __name__ == "__main__":
                     dtype=dtype,
                     verbose=1,
                 )
+                
+                # class stat
+                self.class_count = torch_data_train.class_count
+                self.class_weight = torch_data_train.class_weight
+
                 self.sample_dataset = torch_data_train
+                
                 torch_data_train.show_sample_data()
                 torch_data_val = OASISTorchDataset(
                     directory,
@@ -1017,7 +1092,7 @@ if __name__ == "__main__":
                 self.classnames = torch_data_train.classnames
                 self.num_classes = torch_data_train.num_classes
                 self.num_items = (
-                        len(torch_data_train) + len(torch_data_val) + len(torch_data_test)
+                    len(torch_data_train) + len(torch_data_val) + len(torch_data_test)
                 )
                 logger.info(f"Number of patients: {self.num_items}")
                 logger.info(f"Class Names: {self.classnames}")
@@ -1035,9 +1110,9 @@ if __name__ == "__main__":
                     f"0 waste batch recommendations: {self.recommended_batches}"
                 )
                 # convert torch to tf dataset
-                train_dataset = self.torch_to_tf(torch_data_train, batch_size, prefetch_buffer_size).cache(
-                    f"{cache_file_name_fmt}-{self.num_classes}_train.tfrecord"
-                )
+                train_dataset = self.torch_to_tf(
+                    torch_data_train, batch_size, prefetch_buffer_size
+                ).cache(f"{cache_file_name_fmt}-{self.num_classes}_train.tfrecord")
                 val_dataset = self.torch_to_tf(torch_data_val, batch_size, 1).cache(
                     f"{cache_file_name_fmt}-{self.num_classes}_val.tfrecord"
                 )
@@ -1050,33 +1125,32 @@ if __name__ == "__main__":
                 return self.sample_dataset.encode_labels(labels)
 
             def decode_labels(
-                    self, probabilities: np.ndarray, probability_threshold=0.5
+                self, probabilities: np.ndarray, probability_threshold=0.5
             ):
                 return self.sample_dataset.decode_labels(
                     probabilities, probability_threshold
                 )
 
-
         # ## Dataset loading optimization and normalization
 
         def get_transforms(type="default"):
             global default_transforms, train_transforms
-            from functools import partial
+
             if type == "default":
                 transform_wrap = prepare_transforms_wrap(**default_transforms)
                 return [torchvision.transforms.Lambda(transform_wrap)]
-                # return prepare_transforms(**default_transforms)
             if type == "train":
                 transform_wrap = prepare_transforms_wrap(**train_transforms)
                 return [torchvision.transforms.Lambda(transform_wrap)]
-                # return prepare_transforms(**train_transforms)
-            raise f"Unrecognised transform type: {type}"
+            raise ValueError(f"Unrecognised transform type: {type}")
 
+        def prepare_transforms_wrap(
+            augmentation=True, filter=True, normalize=True, standarized=True
+        ):
+            """
+            Transform
+            """
 
-        def prepare_transforms_wrap(augmentation=True, filter=True, normalize=True, standarized=True):
-            """
-            Transform 
-            """
             def transform_wrap(x):
                 x = torchvision.transforms.ToTensor()(x)
                 title = "orig_"
@@ -1088,30 +1162,36 @@ if __name__ == "__main__":
                 # cv2.imshow(title, x.permute(1, 2, 0).numpy())
                 if filter:
                     x = torchvision.transforms.ToPILImage()(x)
-                    x = torchvision.transforms.Lambda(bilateral_filter)(x)  # pre-processing
+                    x = torchvision.transforms.Lambda(bilateral_filter)(
+                        x
+                    )  # pre-processing
                     x = torchvision.transforms.ToTensor()(x)
                     title += "filter_"
                 # cv2.imshow(title, x.permute(1, 2, 0).numpy())
                 if normalize:
-                    x = torchvision.transforms.Lambda(lambda tensor_img: tensor_img / 255.)(x)  # normalize
+                    x = torchvision.transforms.Lambda(
+                        lambda tensor_img: tensor_img / 255.0
+                    )(x)  # normalize
                     title += "norm_"
                 # cv2.imshow(title, x.permute(1, 2, 0).numpy())
                 if standarized:
                     std_setting = standarized
                     if not isinstance(std_setting, dict):
-                        std_setting = dict(mean=0., std=1.)
-                    x = torchvision.transforms.Normalize(**std_setting)(x)  # standardized
+                        std_setting = dict(mean=0.0, std=1.0)
+                    x = torchvision.transforms.Normalize(**std_setting)(
+                        x
+                    )  # standardized
                     title += "stanz_"
                 # cv2.imshow(title, x.permute(1, 2, 0).numpy())
-                x = torchvision.transforms.Lambda(lambda tensor: tensor.permute(1, 2, 0))(x)
+                x = torchvision.transforms.Lambda(
+                    lambda tensor: tensor.permute(1, 2, 0)
+                )(x)
                 return x
 
             return transform_wrap
 
-
         def bilateral_filter(pil_img):
             return cv2.bilateralFilter(np.array(pil_img), 15, 75, 75)
-
 
         # train transforms
         transforms = torchvision.transforms.Compose(get_transforms("train"))
@@ -1137,10 +1217,14 @@ if __name__ == "__main__":
         CLASS_NAMES = odd.classnames
         num_classes = odd.num_classes
 
-        class_weights = None
-        logger.info(f"class_weights: {class_weights}, {get_system_resource()}")
+        if enable_class_weight and class_weight is None:
+            logger.info("Loading pre-calculated classweights...")
+            class_weight = odd.class_weight
+        else:
+            class_weight = None
 
-
+        logger.info(f"class_weight: {class_weight}, {get_system_resource()}")
+        
         # # Plot to Image and tensorboard logging
 
         def tf_image_grid(images, label):
@@ -1157,7 +1241,6 @@ if __name__ == "__main__":
                     ax.set_title(CLASS_NAMES[np.argmax(label)] + f" view-{i:02}")
                 plt.axis("off")
             return plot_to_tfimage(figure)
-
 
         def volume_viewer():
             for x_batch, y in train_ds:  # train_ds, val_ds, test_ds
@@ -1178,7 +1261,6 @@ if __name__ == "__main__":
                     plt.imshow(tf_i.numpy()[0])
                     plt.axis("off")
                 break
-
 
         volume_viewer()
 
@@ -1244,7 +1326,6 @@ if __name__ == "__main__":
             initial_value_threshold=initial_threshold,
         )
 
-
         class BestModelEpochTrackerCallback(Callback):
             """
             This callback monitor best values and updates in a json file project_dir/bestvalue.json
@@ -1298,13 +1379,11 @@ if __name__ == "__main__":
                             f"Epoch {epoch + 1}: {self.monitor} did not improved form {self.best_value}"
                         )
 
-
         bestval_monitor_callback = BestModelEpochTrackerCallback(
             monitor=monitor,
             mode=mode,
             initial_value_threshold=initial_threshold,
         )
-
 
         class CleanupCallback(Callback):
             # def on_epoch_end(self, epoch, metrics=None):
@@ -1327,7 +1406,6 @@ if __name__ == "__main__":
                         os.remove(pattern)
                 except:
                     pass
-
 
         cleanup_callback = CleanupCallback()
         lr_callback = LearningRateScheduler(lr_schedule)
@@ -1352,11 +1430,17 @@ if __name__ == "__main__":
 
         import keras.applications
 
-
         ## Mobilenet
-        def create_multiview_mobilenet_attn(input_shape, num_views, num_classes,
-                                            trainable=False, activation='softmax',
-                                            attn_head_count=8, attn_size=64, random_seed=37):
+        def create_multiview_mobilenet_attn(
+            input_shape,
+            num_views,
+            num_classes,
+            trainable=False,
+            activation="softmax",
+            attn_head_count=8,
+            attn_size=64,
+            random_seed=37,
+        ):
             """
             Creates a multiview CNN model using MobileNet as the base.
 
@@ -1369,7 +1453,9 @@ if __name__ == "__main__":
                 A Keras Model instance.
             """
             VIEW_AXIS = 1
-            input_tensor = keras.Input(shape=(num_views, *input_shape), name="multi_view_input")
+            input_tensor = keras.Input(
+                shape=(num_views, *input_shape), name="multi_view_input"
+            )
 
             # Distribute the input to different branches for each view
             def distribute(views, axis=VIEW_AXIS, name="view_input_"):
@@ -1377,7 +1463,9 @@ if __name__ == "__main__":
                 unstacked_views = [tf.squeeze(t, axis=1) for t in unstacked_views]
                 return unstacked_views
 
-            distributed_input = keras.layers.Lambda(distribute, name="distribute_view_input")(input_tensor)
+            distributed_input = keras.layers.Lambda(
+                distribute, name="distribute_view_input"
+            )(input_tensor)
             # distributed_input = [keras.Input(shape=input_shape) for _ in range(num_views)]
 
             # Create and apply MobileNet to each view
@@ -1386,12 +1474,13 @@ if __name__ == "__main__":
 
             # Create and apply MobileNet to each view
             for i in range(num_views):
-                base_model = keras.applications.MobileNet(weights='imagenet', include_top=False,
-                                                          input_shape=input_shape)
-                setattr(base_model, '_name', f"{base_model.name}_view_{i}")
+                base_model = keras.applications.MobileNet(
+                    weights="imagenet", include_top=False, input_shape=input_shape
+                )
+                setattr(base_model, "_name", f"{base_model.name}_view_{i}")
                 base_model.trainable = trainable  # Freeze base model weights
                 x = base_model(distributed_input[i])
-                x = keras.layers.Conv2D(256, (3, 3), activation='relu')(x)
+                x = keras.layers.Conv2D(256, (3, 3), activation="relu")(x)
                 x = keras.layers.MaxPooling2D(pool_size=(2, 2))(x)
                 x = keras.layers.GlobalAveragePooling2D()(x)
                 x = keras.layers.Dropout(0.5)(x)
@@ -1400,12 +1489,15 @@ if __name__ == "__main__":
                 mobilenet_outputs.append(x)
             # Stack view features to apply multi-head attention per view
             x = tf.stack(mobilenet_outputs, axis=VIEW_AXIS)
-            x = keras.layers.MultiHeadAttention(num_heads=attn_head_count,
-                                                key_dim=attn_size, attention_axes=[VIEW_AXIS],
-                                                name="viewwise_multihead_attention")(x, x)
+            x = keras.layers.MultiHeadAttention(
+                num_heads=attn_head_count,
+                key_dim=attn_size,
+                attention_axes=[VIEW_AXIS],
+                name="viewwise_multihead_attention",
+            )(x, x)
             x = keras.layers.Flatten()(x)
             # Add custom layers on top of the concatenated features
-            x = keras.layers.Dense(512, activation='relu')(x)
+            x = keras.layers.Dense(512, activation="relu")(x)
             x = keras.layers.Dropout(0.2)(x)
             outputs = keras.layers.Dense(num_classes, activation=activation)(x)
 
@@ -1413,9 +1505,8 @@ if __name__ == "__main__":
             model = keras.Model(inputs=input_tensor, outputs=outputs)
             return model
 
-
         def create_multiview_mobilenet(
-                input_shape, num_views, num_classes, trainable=False
+            input_shape, num_views, num_classes, trainable=False
         ):
             """
             Creates a multiview CNN model using MobileNet as the base.
@@ -1478,9 +1569,7 @@ if __name__ == "__main__":
 
             return model
 
-
         import tensorflow as tf
-
 
         class CustomTrainStep(tf.keras.Model):
             def __init__(self, model, n_gradients, *args, **kwargs):
@@ -1541,7 +1630,6 @@ if __name__ == "__main__":
 
             def save(self, *args, **kwargs):
                 self.model.save(*args, **kwargs)
-
 
         # # Model Multiview build
 
@@ -1604,7 +1692,6 @@ if __name__ == "__main__":
             )
             return model, optimizer, metrics
 
-
         def get_dummy_dataset():
             global volume_depth, image_size, image_size, n_ch, num_classes
             items = 1
@@ -1614,7 +1701,6 @@ if __name__ == "__main__":
             labels = tf.ones(shape=(items, num_classes))
             dataset = tf.data.Dataset.from_tensor_slices((features, labels))
             return dataset.batch(1)
-
 
         import gc
 
@@ -1670,7 +1756,7 @@ if __name__ == "__main__":
                 epochs=max_epoch,
                 initial_epoch=initial_epoch,
                 callbacks=callbacks,
-                class_weight=class_weights,
+                class_weight=class_weight,
                 batch_size=batch_size,
                 max_queue_size=3,
             )
@@ -1700,7 +1786,6 @@ if __name__ == "__main__":
             for v, k in zip(test_result, metrics):
                 tf.summary.scalar(f"test_{k.name}", v, step=0)
 
-
         def prepare_prediction_df(ds):
             records = []
             for imgs, lbls in ds:
@@ -1709,7 +1794,6 @@ if __name__ == "__main__":
                 predicted = odd.decode_labels(proba_lbls)
                 records.extend(np.array([actual, predicted]).T.tolist())
             return pd.DataFrame(records, columns=["actual", "predicted"])
-
 
         train_df = prepare_prediction_df(train_ds)
         val_df = prepare_prediction_df(val_ds)
@@ -1720,7 +1804,6 @@ if __name__ == "__main__":
         import pandas as pd
         import seaborn as sns
         from sklearn.metrics import classification_report, confusion_matrix
-
 
         def analyse_result(df, prefix):
             try:
@@ -1759,7 +1842,9 @@ if __name__ == "__main__":
                 file_writer = tf.summary.create_file_writer(tf_log_dir)
                 with file_writer.as_default():
                     tf.summary.text(
-                        f"{prefix} Confusion Matrix actual(row) vs predicted(cols)", df.to_string(), step=0
+                        f"{prefix} Confusion Matrix actual(row) vs predicted(cols)",
+                        df.to_string(),
+                        step=0,
                     )
                     tf.summary.text(f"{prefix} classification report", report, step=0)
 
@@ -1772,18 +1857,16 @@ if __name__ == "__main__":
                 # log artifacts to the directory
                 df.to_csv(artifact_root + f"/{prefix}_confusion-matrix.csv")
                 with open(
-                        artifact_root + f"/{prefix}_classification_report.txt", "w"
+                    artifact_root + f"/{prefix}_classification_report.txt", "w"
                 ) as fp:
                     fp.write(report)
             except Exception as e:
                 logger.exception(e)
                 logger.info("The dataset does not have all the classes")
 
-
         analyse_result(train_df, "Training")
         analyse_result(val_df, "Validation")
         analyse_result(test_df, "Testing")
-
 
         # from PIL import Image
 
@@ -1794,7 +1877,6 @@ if __name__ == "__main__":
             )
             img_array = np.expand_dims(img_array, axis=0)
             return img_array
-
 
         # Example usage:
         actual_class = TEST_IMG_LABEL
