@@ -53,8 +53,13 @@
   "learning_rate": 0.001,
   "lr_schedular": false,
   "enable_class_weight": true,
-  "class_weight" : null,
-  "sampeling": null,
+  "class_weight": null,
+  "class_imbalance_sampling": [
+    0.25,
+    0.25,
+    0.25,
+    0.25
+  ],
   "model_ext": ".tf",
   "task_type": "categorical",
   "model_name": "MultiViewMobileNet",

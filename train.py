@@ -10,10 +10,11 @@ from kaggle_download import download_kaggle_dataset
 plt.rcParams["font.family"] = "serif"
 import psutil
 from multiprocessing import Process, Lock, Manager
-import logging, os
+import logging
 from datetime import datetime
 
 timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+
 
 def setup_logger(name, timestmp, level=logging.INFO):
     """
@@ -50,7 +51,9 @@ def setup_logger(name, timestmp, level=logging.INFO):
 
     return logger
 
+
 logger = setup_logger(__file__, timestamp)
+
 
 # # Create a logger object
 # logger = logging.getLogger(__file__)
@@ -88,6 +91,7 @@ def get_system_resource():
     disk_usage = psutil.disk_usage("/")
     return f"{cpu_percent:6.2f}%,{memory_info.percent:6.2f}%,{disk_usage.percent:6.2f}%"
 
+
 def log_system_usage(timest, artifact_root, num_worker, lock_csv, lock_worker):
     fi = f"{artifact_root}/system_usage.csv"
     log = f"{timest},{get_system_resource()}"
@@ -107,7 +111,7 @@ MAX_WORKERS = 4
 
 
 def loop_log_system_usage(
-    max_worker, num_worker, artifact_root, stop_signal, lock_csv, lock_worker
+        max_worker, num_worker, artifact_root, stop_signal, lock_csv, lock_worker
 ):
     fi = f"{artifact_root}/system_usage.csv"
     logger.info(f"Activity logging sdtarted in a seperate process: {fi}...")
@@ -154,8 +158,10 @@ if __name__ == "__main__":
         import pandas as pd
         import torchvision.transforms
 
+
         def is_running_in_colab():
             return "google.colab" in sys.modules
+
 
         def is_docker():
             path = "/proc/self/cgroup"
@@ -165,6 +171,7 @@ if __name__ == "__main__":
                         if "docker" in line:
                             return True
             return False
+
 
         if is_docker():
             log_root = (
@@ -187,12 +194,14 @@ if __name__ == "__main__":
         assert os.path.exists(hparams_json), f"Unable to find {hparams_json}"
         import json
 
+
         def infinity_decoder(obj):
             if obj == "inf":
                 return float("inf")
             elif obj == "-inf":
                 return float("-inf")
             return obj
+
 
         logger.info("Loading hyper-params...")
         with open(hparams_json) as f:
@@ -253,8 +262,13 @@ if __name__ == "__main__":
         precision = hparam["precision"]
         learning_rate = hparam["learning_rate"]
         lr_schedular = hparam["lr_schedular"]
+        # class imbalance settings
         enable_class_weight = hparam["enable_class_weight"]
         class_weight = hparam["class_weight"]
+        class_imbalance_sampling = hparam["class_imbalance_sampling"]
+        if enable_class_weight is True or class_weight is not None:
+            class_imbalance_sampling = None
+        # model serialization settings
         model_ext = hparam["model_ext"]
         task_type = hparam["task_type"]  # "binary"
         # Link: https://keras.io/api/applications/
@@ -288,13 +302,13 @@ if __name__ == "__main__":
 
         # memory footprint
         batch_memory_GB = (
-            (precision / 8)
-            * batch_size
-            * image_size
-            * image_size
-            * n_ch
-            * volume_depth
-            * 1e-9
+                (precision / 8)
+                * batch_size
+                * image_size
+                * image_size
+                * n_ch
+                * volume_depth
+                * 1e-9
         )
         train_data_footprint = batch_memory_GB * (prefetch_buffer_size + 1)
         val_test_data_footprint = batch_memory_GB * 2
@@ -318,6 +332,7 @@ if __name__ == "__main__":
                 f"If {evaluate_only=} then either of resume_training, resume_training_timestamp needs to set"
             )
 
+
         def download_oasis():
             global log_root
 
@@ -326,8 +341,8 @@ if __name__ == "__main__":
                 assert os.environ["KAGGLE_USERNAME"], msg
                 assert os.environ["KAGGLE_KEY"], msg
             if (
-                "KAGGLE_USERNAME" in os.environ.keys()
-                and "KAGGLE_KEY" in os.environ.keys()
+                    "KAGGLE_USERNAME" in os.environ.keys()
+                    and "KAGGLE_KEY" in os.environ.keys()
             ):
                 # creating kaggle.json
                 with open("./kaggle.json", "w") as outfile:
@@ -345,6 +360,7 @@ if __name__ == "__main__":
 
             open("./kaggle.json", "w").close()
             logger.debug("Wiping out the kaggle.json file")
+
 
         # Download the dataset
         if not os.path.exists(datasetdir):
@@ -371,6 +387,7 @@ if __name__ == "__main__":
         import json
         import os
 
+
         def get_experiment_details(dataset, model, ts):
             exp_asset_dir = f"{log_root}/results/{dataset}/{model}/{ts}"
             assert os.path.exists(exp_asset_dir), (
@@ -380,7 +397,7 @@ if __name__ == "__main__":
             with open(exp_asset_dir + "/currentepoch.txt") as fp:
                 last_epoch = int(fp.read().strip())
                 checkpoint_model_dir = (
-                    exp_asset_dir + f"/models/epoch=%02d{model_ext}" % last_epoch
+                        exp_asset_dir + f"/models/epoch=%02d{model_ext}" % last_epoch
                 )
                 assert os.path.exists(checkpoint_model_dir), (
                     f"Unable to find the last checkpoint file {checkpoint_model_dir}"
@@ -402,6 +419,7 @@ if __name__ == "__main__":
                 project_dir=exp_asset_dir,
             )
 
+
         # Learning rate schedular callback
         def lr_schedule(epoch):
             """
@@ -417,6 +435,7 @@ if __name__ == "__main__":
 
             tf.summary.scalar("learning rate", data=learning_rate, step=epoch)
             return learning_rate
+
 
         resume_checkpoint_path = None
         experiment_id_path = os.path.join(
@@ -454,6 +473,7 @@ if __name__ == "__main__":
                 freq = best_model_info["frequency"]
             logger.info(f"Resuming checkpoint form epoch={initial_epoch}.")
 
+
         # =====================================================
 
         def save_hparams():
@@ -479,6 +499,7 @@ if __name__ == "__main__":
                     else:
                         tf.summary.text(k, str(v), step=0)
 
+
         # # Prepare `log-artifact` directory
         import datetime
         import pathlib
@@ -496,6 +517,7 @@ if __name__ == "__main__":
         artifact_root = f"{log_root}/results/{dataset_name}/{unique_dir}"
         pathlib.Path(artifact_root).mkdir(parents=True, exist_ok=True)
         pathlib.Path(tf_log_dir).mkdir(parents=True, exist_ok=True)
+
 
         def log(*args, **kwargs):
             time = False
@@ -516,6 +538,7 @@ if __name__ == "__main__":
                 kwargs["file"] = fp
                 kwargs["flush"] = True
                 print(*args, **kwargs)
+
 
         log(f"Experiment path: '{artifact_root}'")
 
@@ -558,6 +581,7 @@ if __name__ == "__main__":
         random.seed(random_seed)
         np.random.seed(random_seed)
 
+
         # # Loading multiview-datasets
 
         def plot_to_tfimage(figure):
@@ -576,6 +600,7 @@ if __name__ == "__main__":
             image = tf.expand_dims(image, 0)
             return image
 
+
         # define a tf image logger
         tf_image_logger = tf.summary.create_file_writer(tf_log_dir)
         # # example use
@@ -593,6 +618,7 @@ if __name__ == "__main__":
         import tensorflow as tf
         import torchvision.transforms
         from torch.utils.data import Dataset
+
 
         class OASISTorchDataset(Dataset):
             BINARY_TASK = "binary"
@@ -620,20 +646,21 @@ if __name__ == "__main__":
                 return self.load_volume(images), class_name, lbl
 
             def __init__(
-                self,
-                path,
-                task_type,
-                image_size,
-                transforms,
-                split_name,
-                batch_size,
-                ablation=0,
-                nch=3,
-                seed=37,
-                splits=(70, 20, 10),
-                class_names=None,
-                dtype="float32",
-                verbose=0,
+                    self,
+                    path,
+                    task_type,
+                    image_size,
+                    transforms,
+                    split_name,
+                    batch_size,
+                    ablation=0,
+                    nch=3,
+                    seed=37,
+                    splits=(70, 20, 10),
+                    class_names=None,
+                    class_imbalance_sampling=None,
+                    dtype="float32",
+                    verbose=0,
             ):
                 assert len(image_size) == 2, (
                     "Image size must be a tuple of two integers"
@@ -643,6 +670,7 @@ if __name__ == "__main__":
                 assert len(splits) == 3 and sum(splits) == 100, (
                     f"train-validation-test splits must accumulate to 100, but {splits=} given."
                 )
+                self.class_imbalance_sampling = class_imbalance_sampling
                 self.path = pathlib.Path(path)
                 self.verbose = verbose
                 # get class names
@@ -650,9 +678,9 @@ if __name__ == "__main__":
                 if class_names is not None:
                     self.classnames = [c for c in self.classnames if c in class_names]
                 if (
-                    task_type == self.BINARY_TASK
-                    and len(self.classnames) >= 2
-                    and class_names is None
+                        task_type == self.BINARY_TASK
+                        and len(self.classnames) >= 2
+                        and class_names is None
                 ):
                     raise Exception(
                         f"When `class_names` is not specified, "
@@ -718,8 +746,8 @@ if __name__ == "__main__":
                         (self.path / class_dir).resolve()
                     )
                     for slices, label in zip(
-                        grouped_files.values(),
-                        [class_dir] * len(grouped_files.values()),
+                            grouped_files.values(),
+                            [class_dir] * len(grouped_files.values()),
                     ):
                         lbl = self.encode_labels(label)
                         yield (
@@ -768,7 +796,7 @@ if __name__ == "__main__":
                     return np.array(enc_label).astype(self.dtype)
 
             def decode_labels(
-                self, probabilities: np.ndarray, probability_threshold=0.5
+                    self, probabilities: np.ndarray, probability_threshold=0.5
             ):
                 """
                 :param probabilities: batch of the network output(probabilities)
@@ -859,7 +887,7 @@ if __name__ == "__main__":
                 test_batches = int(round(no_batches * test_ratio))
                 # calculate residual batches
                 residual_batches = (
-                    train_batches + val_batches + test_batches - no_batches
+                        train_batches + val_batches + test_batches - no_batches
                 )
                 # adjust residual batches to/from train_batches
                 if residual_batches < 0:
@@ -883,10 +911,10 @@ if __name__ == "__main__":
                     self.items = items[:train_size]
                 elif self.split_name == "validation":
                     # validation
-                    self.items = items[train_size : train_size + val_size]
+                    self.items = items[train_size: train_size + val_size]
                 else:
                     # test
-                    self.items = items[train_size + val_size :]
+                    self.items = items[train_size + val_size:]
                 if self.ablation == 0:
                     if len(self.items) % self.batch_size != 0:
                         warnings.warn(
@@ -902,7 +930,7 @@ if __name__ == "__main__":
             def _calculate_stastistics(self, items):
                 if not self.IS_STAT_CALCULATED:
                     logger.info("Calculating stastics...")
-                    _counter = np.zeros((4, ), "uint8")
+                    _counter = np.zeros((4,), "uint8")
                     _total = len(items)
                     for _, lbl in items:
                         lbl = self.decode_labels(np.array([lbl]))[0]
@@ -930,7 +958,7 @@ if __name__ == "__main__":
                 return self
 
             def __len__(
-                self,
+                    self,
             ):
                 return len(self.items)
 
@@ -976,8 +1004,10 @@ if __name__ == "__main__":
                     if sum(found_classes.values()) == stop_loop_cond:
                         break
 
+
         class OASISTFDataset:
-            def __init__(self):
+            def __init__(self, class_imbalance_sampling=None):
+                self.class_imbalance_sampling = class_imbalance_sampling
                 self.sample_dataset: OASISTorchDataset = None
                 self.classnames = None
                 self.num_classes = None
@@ -1013,19 +1043,19 @@ if __name__ == "__main__":
                 return dataset
 
             def tf_oasis_load_dataset(
-                self,
-                directory,
-                transforms,
-                label_mode="category",
-                class_names=None,
-                color_mode="rgb",
-                batch_size=32,
-                prefetch_buffer_size=1,
-                ablation=0,
-                image_size=(256, 256),
-                seed=None,
-                split_ratio_100=(70, 20, 10),
-                dtype="float32",
+                    self,
+                    directory,
+                    transforms,
+                    label_mode="category",
+                    class_names=None,
+                    color_mode="rgb",
+                    batch_size=32,
+                    prefetch_buffer_size=1,
+                    ablation=0,
+                    image_size=(256, 256),
+                    seed=None,
+                    split_ratio_100=(70, 20, 10),
+                    dtype="float32",
             ):
                 assert color_mode in ("grayscale", "rgb"), color_mode
                 assert label_mode in (
@@ -1050,16 +1080,17 @@ if __name__ == "__main__":
                     seed=seed,
                     splits=split_ratio_100,
                     class_names=class_names,
+                    class_imbalance_sampling=self.class_imbalance_sampling,
                     dtype=dtype,
                     verbose=1,
                 )
-                
+
                 # class stat
                 self.class_count = torch_data_train.class_count
                 self.class_weight = torch_data_train.class_weight
 
                 self.sample_dataset = torch_data_train
-                
+
                 torch_data_train.show_sample_data()
                 torch_data_val = OASISTorchDataset(
                     directory,
@@ -1073,6 +1104,7 @@ if __name__ == "__main__":
                     seed=seed,
                     splits=split_ratio_100,
                     class_names=class_names,
+                    class_imbalance_sampling=self.class_imbalance_sampling,
                     dtype=dtype,
                 )
                 torch_data_test = OASISTorchDataset(
@@ -1087,12 +1119,13 @@ if __name__ == "__main__":
                     seed=seed,
                     splits=split_ratio_100,
                     class_names=class_names,
+                    class_imbalance_sampling=self.class_imbalance_sampling,
                     dtype=dtype,
                 )
                 self.classnames = torch_data_train.classnames
                 self.num_classes = torch_data_train.num_classes
                 self.num_items = (
-                    len(torch_data_train) + len(torch_data_val) + len(torch_data_test)
+                        len(torch_data_train) + len(torch_data_val) + len(torch_data_test)
                 )
                 logger.info(f"Number of patients: {self.num_items}")
                 logger.info(f"Class Names: {self.classnames}")
@@ -1125,11 +1158,12 @@ if __name__ == "__main__":
                 return self.sample_dataset.encode_labels(labels)
 
             def decode_labels(
-                self, probabilities: np.ndarray, probability_threshold=0.5
+                    self, probabilities: np.ndarray, probability_threshold=0.5
             ):
                 return self.sample_dataset.decode_labels(
                     probabilities, probability_threshold
                 )
+
 
         # ## Dataset loading optimization and normalization
 
@@ -1144,8 +1178,9 @@ if __name__ == "__main__":
                 return [torchvision.transforms.Lambda(transform_wrap)]
             raise ValueError(f"Unrecognised transform type: {type}")
 
+
         def prepare_transforms_wrap(
-            augmentation=True, filter=True, normalize=True, standarized=True
+                augmentation=True, filter=True, normalize=True, standarized=True
         ):
             """
             Transform
@@ -1190,14 +1225,16 @@ if __name__ == "__main__":
 
             return transform_wrap
 
+
         def bilateral_filter(pil_img):
             return cv2.bilateralFilter(np.array(pil_img), 15, 75, 75)
+
 
         # train transforms
         transforms = torchvision.transforms.Compose(get_transforms("train"))
 
         OASISTorchDataset.VOLUME_DEPTH = volume_depth
-        odd = OASISTFDataset()
+        odd = OASISTFDataset(class_imbalance_sampling=class_imbalance_sampling)
 
         train_ds, val_ds, test_ds = odd.tf_oasis_load_dataset(
             datasetdir,
@@ -1218,12 +1255,13 @@ if __name__ == "__main__":
         num_classes = odd.num_classes
 
         if enable_class_weight and class_weight is None:
-            logger.info("Loading pre-calculated classweights...")
+            logger.info("Loading pre-calculated class-weights...")
             class_weight = odd.class_weight
         else:
             class_weight = None
 
         logger.info(f"class_weight: {class_weight}, {get_system_resource()}")
+
 
         # # Plot to Image and tensorboard logging
 
@@ -1241,6 +1279,7 @@ if __name__ == "__main__":
                     ax.set_title(CLASS_NAMES[np.argmax(label)] + f" view-{i:02}")
                 plt.axis("off")
             return plot_to_tfimage(figure)
+
 
         def volume_viewer():
             for x_batch, y in train_ds:  # train_ds, val_ds, test_ds
@@ -1261,6 +1300,7 @@ if __name__ == "__main__":
                     plt.imshow(tf_i.numpy()[0])
                     plt.axis("off")
                 break
+
 
         volume_viewer()
 
@@ -1325,6 +1365,7 @@ if __name__ == "__main__":
             initial_value_threshold=initial_threshold,
         )
 
+
         class BestModelEpochTrackerCallback(Callback):
             """
             This callback monitor best values and updates in a json file project_dir/bestvalue.json
@@ -1378,11 +1419,13 @@ if __name__ == "__main__":
                             f"Epoch {epoch + 1}: {self.monitor} did not improved form {self.best_value}"
                         )
 
+
         bestval_monitor_callback = BestModelEpochTrackerCallback(
             monitor=monitor,
             mode=mode,
             initial_value_threshold=initial_threshold,
         )
+
 
         class CleanupCallback(Callback):
             # def on_epoch_end(self, epoch, metrics=None):
@@ -1406,8 +1449,10 @@ if __name__ == "__main__":
                 except:
                     pass
 
+
         cleanup_callback = CleanupCallback()
         lr_callback = LearningRateScheduler(lr_schedule)
+
 
         class GradientNormCallback(tf.keras.callbacks.Callback):
             def __init__(self, log_dir):
@@ -1422,6 +1467,7 @@ if __name__ == "__main__":
                 with self.summary_writer.as_default():
                     for i, norm in enumerate(gradient_norms):
                         tf.summary.scalar(f'gradient_norm_{i}', norm, step=self.model.optimizer.iterations)
+
 
         grad_callback = GradientNormCallback(log_dir=artifact_root)
 
@@ -1445,16 +1491,17 @@ if __name__ == "__main__":
 
         import keras.applications
 
+
         ## Mobilenet
         def create_multiview_mobilenet_attn(
-            input_shape,
-            num_views,
-            num_classes,
-            trainable=False,
-            activation="softmax",
-            attn_head_count=8,
-            attn_size=64,
-            random_seed=37,
+                input_shape,
+                num_views,
+                num_classes,
+                trainable=False,
+                activation="softmax",
+                attn_head_count=8,
+                attn_size=64,
+                random_seed=37,
         ):
             """
             Creates a multiview CNN model using MobileNet as the base.
@@ -1520,8 +1567,9 @@ if __name__ == "__main__":
             model = keras.Model(inputs=input_tensor, outputs=outputs)
             return model
 
+
         def create_multiview_mobilenet(
-            input_shape, num_views, num_classes, trainable=False
+                input_shape, num_views, num_classes, trainable=False
         ):
             """
             Creates a multiview CNN model using MobileNet as the base.
@@ -1584,7 +1632,9 @@ if __name__ == "__main__":
 
             return model
 
+
         import tensorflow as tf
+
 
         class CustomTrainStep(tf.keras.Model):
             def __init__(self, model, n_gradients, *args, **kwargs):
@@ -1645,6 +1695,7 @@ if __name__ == "__main__":
 
             def save(self, *args, **kwargs):
                 self.model.save(*args, **kwargs)
+
 
         # # Model Multiview build
 
@@ -1707,6 +1758,7 @@ if __name__ == "__main__":
             )
             return model, optimizer, metrics
 
+
         def get_dummy_dataset():
             global volume_depth, image_size, image_size, n_ch, num_classes
             items = 1
@@ -1716,6 +1768,7 @@ if __name__ == "__main__":
             labels = tf.ones(shape=(items, num_classes))
             dataset = tf.data.Dataset.from_tensor_slices((features, labels))
             return dataset.batch(1)
+
 
         import gc
 
@@ -1801,6 +1854,7 @@ if __name__ == "__main__":
             for v, k in zip(test_result, metrics):
                 tf.summary.scalar(f"test_{k.name}", v, step=0)
 
+
         def prepare_prediction_df(ds):
             records = []
             for imgs, lbls in ds:
@@ -1809,6 +1863,7 @@ if __name__ == "__main__":
                 predicted = odd.decode_labels(proba_lbls)
                 records.extend(np.array([actual, predicted]).T.tolist())
             return pd.DataFrame(records, columns=["actual", "predicted"])
+
 
         train_df = prepare_prediction_df(train_ds)
         val_df = prepare_prediction_df(val_ds)
@@ -1819,6 +1874,7 @@ if __name__ == "__main__":
         import pandas as pd
         import seaborn as sns
         from sklearn.metrics import classification_report, confusion_matrix
+
 
         def analyse_result(df, prefix):
             try:
@@ -1872,16 +1928,18 @@ if __name__ == "__main__":
                 # log artifacts to the directory
                 df.to_csv(artifact_root + f"/{prefix}_confusion-matrix.csv")
                 with open(
-                    artifact_root + f"/{prefix}_classification_report.txt", "w"
+                        artifact_root + f"/{prefix}_classification_report.txt", "w"
                 ) as fp:
                     fp.write(report)
             except Exception as e:
                 logger.exception(e)
                 logger.info("The dataset does not have all the classes")
 
+
         analyse_result(train_df, "Training")
         analyse_result(val_df, "Validation")
         analyse_result(test_df, "Testing")
+
 
         # from PIL import Image
 
@@ -1892,6 +1950,7 @@ if __name__ == "__main__":
             )
             img_array = np.expand_dims(img_array, axis=0)
             return img_array
+
 
         # Example usage:
         actual_class = TEST_IMG_LABEL
